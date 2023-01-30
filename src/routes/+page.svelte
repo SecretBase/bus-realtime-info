@@ -1,56 +1,52 @@
 <script lang="ts">
 	import { getRoutes, getRoutesQueryKey } from '$lib/api/routes';
-	import type { CompanyId } from '$lib/api/types';
 	import { createQuery } from '@tanstack/svelte-query';
+	import CompanyBadge from '../components/companyBadge.svelte';
 
-	let companyId: CompanyId | undefined = undefined;
-
-	$: ctbRouteQuery = createQuery({
+	const ctbQuery = createQuery({
 		staleTime: Infinity,
-		enabled: Boolean(companyId),
-		queryKey: getRoutesQueryKey({ companyId }),
+		queryKey: getRoutesQueryKey({ companyId: 'CTB' }),
 		queryFn: () =>
 			getRoutes({
-				companyId
+				companyId: 'CTB'
+			})
+	});
+
+	const nwfbQuery = createQuery({
+		staleTime: Infinity,
+		queryKey: getRoutesQueryKey({ companyId: 'NWFB' }),
+		queryFn: () =>
+			getRoutes({
+				companyId: 'NWFB'
 			})
 	});
 
 	let routeFilter = '';
-	$: routes =
-		$ctbRouteQuery.data?.data.filter((route) =>
-			route.route.toLowerCase().startsWith(routeFilter.toLowerCase())
-		) ?? [];
+
+	$: ctbRoutes = $ctbQuery.data?.data ?? [];
+	$: nwfbRoutes = $nwfbQuery.data?.data ?? [];
+	$: routes = [...ctbRoutes, ...nwfbRoutes].filter((route) => route.route.startsWith(routeFilter));
 </script>
 
-<button
-	type="button"
-	on:click={() => {
-		companyId = 'CTB';
-	}}>城巴</button
->
-<button
-	type="button"
-	on:click={() => {
-		companyId = 'NWFB';
-	}}>新巴</button
->
-
-<input type="text" placeholder="Enter route number" bind:value={routeFilter} />
-
-{#if !companyId}
-	<div>Please select company</div>
-{:else if $ctbRouteQuery.isLoading}
-	<h1>Loading</h1>
-{:else if $ctbRouteQuery.isError}
-	<h1>Error</h1>
-{:else if $ctbRouteQuery.isSuccess}
-	<ul>
-		{#each routes as route}
-			<li>
-				{companyId === 'CTB' ? '城巴' : companyId === 'NWFB' ? '新巴' : ''}
-				<a href={`/${route.co}/${route.route}`} data-sveltekit-preload-data="hover">{route.route}</a
-				>
-			</li>
-		{/each}
-	</ul>
-{/if}
+<input
+	type="text"
+	placeholder="Enter route number"
+	bind:value={routeFilter}
+	class="border-b p-4 mb-4 bg-vesuvius-700 text-white placeholder:text-white text-center rounded-xl min-w-[200px]"
+/>
+<ul>
+	{#each routes as route}
+		<li class="mb-3 bg-white border-px shadow-md rounded-xl hover:shadow-lg min-w-[200px]">
+			<a
+				class="flex items-center p-4 gap-2"
+				href={`/${route.co}/${route.route}`}
+				data-sveltekit-preload-data="hover"
+			>
+				<CompanyBadge companyId={route.co} />
+				<span class="flex-1 text-center">{route.route}</span>
+			</a>
+		</li>
+	{:else}
+		No routes
+	{/each}
+</ul>

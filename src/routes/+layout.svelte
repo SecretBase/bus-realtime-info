@@ -1,4 +1,5 @@
 <script lang="ts">
+	import './app.css';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import type { PageData } from './$types';
 
@@ -6,5 +7,7 @@
 </script>
 
 <QueryClientProvider client={data.queryClient}>
-	<slot />
+	<div class="container mx-auto flex justify-center flex-col items-center py-4">
+		<slot />
+	</div>
 </QueryClientProvider>

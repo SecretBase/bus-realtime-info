@@ -4,6 +4,8 @@
 	import { getRouteStop, getRouteStopQueryKey } from '$lib/api/routeStop';
 	import type { CompanyId, Direction } from '$lib/api/types';
 	import { createQuery } from '@tanstack/svelte-query';
+	import Button from '../../../components/Button.svelte';
+	import CompanyBadge from '../../../components/companyBadge.svelte';
 	import Stop from './stop.svelte';
 
 	let direction: Direction = 'inbound';
@@ -43,27 +45,31 @@
 {:else if $routeQuery.isError}
 	<h1>Error</h1>
 {:else if $routeQuery.isSuccess}
-	<h1>Route {$routeQuery.data.data.route}</h1>
-	<dl>
-		<dl>Origin</dl>
-		<dt>
-			<button
-				type="button"
-				on:click={() => {
-					direction = 'inbound';
-				}}>{$routeQuery.data.data.orig_tc}</button
-			>
-		</dt>
-		<dl>Destination</dl>
-		<dt>
-			<button
-				type="button"
-				on:click={() => {
-					direction = 'outbound';
-				}}>{$routeQuery.data.data.dest_tc}</button
-			>
-		</dt>
-	</dl>
+	<h1
+		class="max-w-xs w-full py-4 px-6 mb-4 text-2xl flex gap-2 items-center justify-center bg-white shadow-md rounded-xl"
+	>
+		<CompanyBadge companyId={$routeQuery.data.data.co} />
+		<span class="text-vesuvius-900 font-bold">{$routeQuery.data.data.route}</span>
+	</h1>
+
+	<div class="grid auto-cols-fr grid-flow-col gap-2 max-w-xs w-full mb-5">
+		<Button
+			type="button"
+			class="py-4 px-6"
+			variant={direction === 'inbound' ? 'primary' : 'secondary'}
+			on:click={() => {
+				direction = 'inbound';
+			}}>往{$routeQuery.data.data.orig_tc}</Button
+		>
+		<Button
+			type="button"
+			class="py-4 px-6"
+			variant={direction === 'outbound' ? 'primary' : 'secondary'}
+			on:click={() => {
+				direction = 'outbound';
+			}}>往{$routeQuery.data.data.dest_tc}</Button
+		>
+	</div>
 {/if}
 
 {#if $routeStopQuery.isLoading}
@@ -73,7 +79,7 @@
 {:else if $routeStopQuery.isSuccess}
 	<ul>
 		{#each $routeStopQuery.data.data as routeStop}
-			<li><Stop stopId={routeStop.stop} {companyId} {route} /></li>
+			<li class="mb-4"><Stop stopId={routeStop.stop} {companyId} {route} /></li>
 		{/each}
 	</ul>
 {/if}
