@@ -7,7 +7,7 @@
 </script>
 
 <QueryClientProvider client={data.queryClient}>
-	<div class="container mx-auto flex justify-center flex-col items-center py-4">
+	<div class="container mx-auto flex justify-center flex-col items-center">
 		<slot />
 	</div>
 </QueryClientProvider>

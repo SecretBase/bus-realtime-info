@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.no-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scroll-bar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;
+}
+
+.routes-filter-grid {
+  grid-template-rows: max-content 1fr;
+}
+
+.routes-list-grid {
+  grid-template-rows: repeat(auto-fit, 64px);
+}
+
+.stop-list-grid {
+  grid-template-rows: repeat(auto-fit, 24px);
+}
+
+.route-stop-list-grid {
+  grid-template-rows: repeat(auto-fit, 56px);
+}

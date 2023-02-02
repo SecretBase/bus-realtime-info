@@ -4,9 +4,11 @@
 	import { getRouteStop, getRouteStopQueryKey } from '$lib/api/routeStop';
 	import type { CompanyId, Direction } from '$lib/api/types';
 	import { createQuery } from '@tanstack/svelte-query';
+	import LoadingSpinner from '../../../components/LoadingSpinner.svelte';
 	import Button from '../../../components/Button.svelte';
 	import CompanyBadge from '../../../components/companyBadge.svelte';
 	import Stop from './stop.svelte';
+	import LoadingSkeleton from '../../../components/LoadingSkeleton.svelte';
 
 	let direction: Direction = 'inbound';
 
@@ -40,46 +42,51 @@
 	});
 </script>
 
-{#if $routeQuery.isLoading}
-	<h1>Loading</h1>
-{:else if $routeQuery.isError}
-	<h1>Error</h1>
-{:else if $routeQuery.isSuccess}
-	<h1
-		class="max-w-xs w-full py-4 px-6 mb-4 text-2xl flex gap-2 items-center justify-center bg-white shadow-md rounded-xl"
-	>
-		<CompanyBadge companyId={$routeQuery.data.data.co} />
-		<span class="text-vesuvius-900 font-bold">{$routeQuery.data.data.route}</span>
-	</h1>
+<div class="grid py-4 gap-4 h-screen routes-filter-grid">
+	{#if $routeQuery.isLoading}
+		<LoadingSpinner />
+	{:else if $routeQuery.isError}
+		<p>錯誤發生</p>
+	{:else if $routeQuery.isSuccess}
+		<div class="max-w-xs w-full">
+			<h1
+				class="w-full py-4 px-6 mb-4 text-2xl flex gap-2 items-center justify-center bg-white shadow-md rounded-xl"
+			>
+				<CompanyBadge companyId={$routeQuery.data.data.co} />
+				<span class="text-vesuvius-900 font-bold">{$routeQuery.data.data.route}</span>
+			</h1>
 
-	<div class="grid auto-cols-fr grid-flow-col gap-2 max-w-xs w-full mb-5">
-		<Button
-			type="button"
-			class="py-4 px-6"
-			variant={direction === 'inbound' ? 'primary' : 'secondary'}
-			on:click={() => {
-				direction = 'inbound';
-			}}>往{$routeQuery.data.data.orig_tc}</Button
-		>
-		<Button
-			type="button"
-			class="py-4 px-6"
-			variant={direction === 'outbound' ? 'primary' : 'secondary'}
-			on:click={() => {
-				direction = 'outbound';
-			}}>往{$routeQuery.data.data.dest_tc}</Button
-		>
+			<div class="grid auto-cols-fr grid-flow-col gap-2 w-full">
+				<Button
+					type="button"
+					class="py-4 px-6"
+					variant={direction === 'inbound' ? 'primary' : 'secondary'}
+					on:click={() => {
+						direction = 'inbound';
+					}}>往{$routeQuery.data.data.orig_tc}</Button
+				>
+				<Button
+					type="button"
+					class="py-4 px-6"
+					variant={direction === 'outbound' ? 'primary' : 'secondary'}
+					on:click={() => {
+						direction = 'outbound';
+					}}>往{$routeQuery.data.data.dest_tc}</Button
+				>
+			</div>
+		</div>
+	{/if}
+	<div class="max-w-xs w-full min-h-0">
+		{#if $routeStopQuery.isLoading}
+			<LoadingSkeleton skeletonHeightClass="h-14" />
+		{:else if $routeStopQuery.isError}
+			<p>錯誤發生</p>
+		{:else if $routeStopQuery.isSuccess}
+			<ul class="overflow-auto h-full snap-y no-scroll-bar">
+				{#each $routeStopQuery.data.data as routeStop}
+					<li class="mb-4 snap-start"><Stop stopId={routeStop.stop} {companyId} {route} /></li>
+				{/each}
+			</ul>
+		{/if}
 	</div>
-{/if}
-
-{#if $routeStopQuery.isLoading}
-	<h1>Loading</h1>
-{:else if $routeStopQuery.isError}
-	<h1>Error</h1>
-{:else if $routeStopQuery.isSuccess}
-	<ul>
-		{#each $routeStopQuery.data.data as routeStop}
-			<li class="mb-4"><Stop stopId={routeStop.stop} {companyId} {route} /></li>
-		{/each}
-	</ul>
-{/if}
+</div>
