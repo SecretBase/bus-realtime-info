@@ -29,7 +29,13 @@
 	$: routes = [...ctbRoutes, ...nwfbRoutes].filter((route) => route.route.startsWith(routeFilter));
 </script>
 
-<div class="py-4 grid grid-flow-cols routes-filter-grid gap-4 h-screen">
+<svelte:head>
+	<title>Bus ETA</title>
+</svelte:head>
+
+<div
+	class="py-4 grid grid-flow-cols routes-filter-grid gap-4 h-screen h-[100dvh] w-full px-4 max-w-xs"
+>
 	<input
 		type="text"
 		placeholder="輸入路線"

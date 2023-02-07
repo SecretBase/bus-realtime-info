@@ -1,0 +1,36 @@
+{
+	"name": "Bus ETA",
+	"short_name": "Bus ETA",
+	"theme_color": "#bc560a",
+	"background_color": "#fffbeb",
+	"display": "standalone",
+	"orientation": "portrait",
+	"scope": "/",
+	"start_url": "/",
+	"icons": [
+		{
+			"sizes": "192x192",
+			"src": "maskable-bus192.png",
+			"type": "image/png",
+			"purpose": "maskable"
+		},
+		{
+			"sizes": "512x512",
+			"src": "maskable-bus512.png",
+			"type": "image/png",
+			"purpose": "maskable"
+		},
+		{
+			"sizes": "150x150",
+			"src": "bus150.png",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"sizes": "512x512",
+			"src": "bus512.png",
+			"type": "image/png",
+			"purpose": "any"
+		}
+	]
+}

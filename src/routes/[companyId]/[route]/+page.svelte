@@ -42,13 +42,22 @@
 	});
 </script>
 
-<div class="grid py-4 gap-4 h-screen routes-filter-grid">
+<svelte:head>
+	<title>
+		{companyId === 'CTB' ? '城巴' : companyId === 'NWFB' ? '新巴' : ''}
+		{$routeQuery?.data?.data.route} | Bus ETA
+	</title>
+</svelte:head>
+
+<div
+	class="grid py-4 gap-4 h-screen h-[100dvh] routes-filter-grid w-full px-4 justify-center max-w-xs"
+>
 	{#if $routeQuery.isLoading}
 		<LoadingSpinner />
 	{:else if $routeQuery.isError}
 		<p>錯誤發生</p>
 	{:else if $routeQuery.isSuccess}
-		<div class="max-w-xs w-full">
+		<div class="w-full">
 			<h1
 				class="w-full py-4 px-6 mb-4 text-2xl flex gap-2 items-center justify-center bg-white shadow-md rounded-xl"
 			>
@@ -76,7 +85,7 @@
 			</div>
 		</div>
 	{/if}
-	<div class="max-w-xs w-full min-h-0">
+	<div class="w-full min-h-0">
 		{#if $routeStopQuery.isLoading}
 			<LoadingSkeleton skeletonHeightClass="h-14" />
 		{:else if $routeStopQuery.isError}
