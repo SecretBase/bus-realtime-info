@@ -16,10 +16,12 @@ const precache_list = [
 	...build,
 	...files,
 	...prerendered
-].map((s) => ({
-	url: s,
-	revision: CACHE
-}));
+]
+	.map((s) => ({
+		url: s,
+		revision: CACHE
+	}))
+	.filter(({ url }) => !url.includes('_redirects'));
 
 precacheAndRoute(precache_list);
 cleanupOutdatedCaches();

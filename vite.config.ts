@@ -1,8 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import type { UserConfig } from 'vite';
 
-console.log(process.env.NODE_ENV);
-
 const config: UserConfig = {
 	plugins: [sveltekit()],
 	define: {
