@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+/// <reference lib="esnext" />
 /// <reference lib="webworker" />
 
 import { build, files, version, prerendered } from '$service-worker';
