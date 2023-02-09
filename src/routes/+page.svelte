@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getRoutes, getRoutesQueryKey } from '$lib/api/routes';
+	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { createQuery } from '@tanstack/svelte-query';
 	import CompanyBadge from '../components/companyBadge.svelte';
 	import LoadingSkeleton from '../components/LoadingSkeleton.svelte';
@@ -46,24 +47,20 @@
 		{#if $ctbQuery.isLoading || $nwfbQuery.isLoading}
 			<LoadingSkeleton />
 		{:else}
-			<ul class="grid gap-4 h-full overflow-auto no-scroll-bar snap-y routes-list-grid">
-				{#each routes as route}
-					<li
-						class="snap-start bg-white border-px shadow-md rounded-xl hover:shadow-lg min-w-[200px]"
+			<VirtualList items={routes} let:item itemHeight={56}>
+				<div
+					class="snap-start bg-white border-px shadow-md rounded-xl hover:shadow-lg min-w-[200px] mb-4"
+				>
+					<a
+						class="flex items-center p-4 gap-2"
+						href={`/${item.co}/${item.route}`}
+						data-sveltekit-preload-data="hover"
 					>
-						<a
-							class="flex items-center p-4 gap-2"
-							href={`/${route.co}/${route.route}`}
-							data-sveltekit-preload-data="hover"
-						>
-							<CompanyBadge companyId={route.co} />
-							<span class="flex-1 text-center">{route.route}</span>
-						</a>
-					</li>
-				{:else}
-					沒有路線
-				{/each}
-			</ul>
+						<CompanyBadge companyId={item.co} />
+						<span class="flex-1 text-center">{item.route}</span>
+					</a>
+				</div>
+			</VirtualList>
 		{/if}
 	</div>
 </div>

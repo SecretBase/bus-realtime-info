@@ -2,10 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+svelte-virtual-list-viewport::-webkit-scrollbar,
 .no-scroll-bar::-webkit-scrollbar {
   display: none;
 }
 
+svelte-virtual-list-viewport,
 .no-scroll-bar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;
@@ -15,10 +17,6 @@
   grid-template-rows: max-content 1fr;
 }
 
-.routes-list-grid {
-  grid-template-rows: repeat(auto-fit, 64px);
-}
-
 .stop-list-grid {
   grid-template-rows: repeat(auto-fit, 24px);
 }
@@ -26,3 +24,4 @@
 .route-stop-list-grid {
   grid-template-rows: repeat(auto-fit, 56px);
 }
+
