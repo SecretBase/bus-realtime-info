@@ -11,11 +11,11 @@
 		switch (variant) {
 			case 'primary':
 				buttonClassnames =
-					'bg-vesuvius-500 hover:bg-vesuvius-400 active:bg-vesuvius-600 text-white';
+					'bg-vesuvius-400 hover:bg-vesuvius-400 active:bg-vesuvius-600 text-vesuvius-900';
 				break;
 			case 'secondary':
 				buttonClassnames =
-					'bg-vesuvius-100 hover:bg-vesuvius-200 active:bg-vesuvius-300 text-vesuvius-700';
+					'bg-vesuvius-100 hover:bg-vesuvius-200 active:bg-vesuvius-300 text-vesuvius-900';
 				break;
 			default:
 				break;

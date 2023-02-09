@@ -78,7 +78,9 @@
 						{/if}
 					</li>
 				{:else}
-					<span class="bg-vesuvius-300 rounded-full py-2 px-3 text-gray-400">沒有班次</span>
+					<li>
+						<span class="bg-vesuvius-300 rounded-full py-2 px-3 text-gray-600">沒有班次</span>
+					</li>
 				{/each}
 			</ul>
 		</div>
