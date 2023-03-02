@@ -15,6 +15,7 @@ svelte-virtual-list-viewport,
 
 .routes-filter-grid {
   grid-template-rows: max-content 1fr;
+  justify-content: stretch;
 }
 
 .stop-list-grid {

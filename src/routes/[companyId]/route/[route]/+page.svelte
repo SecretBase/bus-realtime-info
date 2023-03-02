@@ -4,11 +4,12 @@
 	import { getRouteStop, getRouteStopQueryKey } from '$lib/api/routeStop';
 	import type { CompanyId, Direction } from '$lib/api/types';
 	import { createQuery } from '@tanstack/svelte-query';
-	import LoadingSpinner from '../../../components/LoadingSpinner.svelte';
-	import Button from '../../../components/Button.svelte';
-	import CompanyBadge from '../../../components/companyBadge.svelte';
+	import LoadingSpinner from '../../../../components/LoadingSpinner.svelte';
+	import Button from '../../../../components/Button.svelte';
+	import CompanyBadge from '../../../../components/companyBadge.svelte';
 	import Stop from './stop.svelte';
-	import LoadingSkeleton from '../../../components/LoadingSkeleton.svelte';
+	import LoadingSkeleton from '../../../../components/LoadingSkeleton.svelte';
+	import RouteHeader from '../../../../components/RouteHeader.svelte';
 
 	let direction: Direction = 'inbound';
 
@@ -58,12 +59,7 @@
 		<p>錯誤發生</p>
 	{:else if $routeQuery.isSuccess}
 		<div class="w-full">
-			<h1
-				class="w-full py-4 px-6 mb-4 text-2xl flex gap-2 items-center justify-center bg-white shadow-md rounded-xl"
-			>
-				<CompanyBadge companyId={$routeQuery.data.data.co} />
-				<span class="text-vesuvius-900 font-bold">{$routeQuery.data.data.route}</span>
-			</h1>
+			<RouteHeader companyId={$routeQuery.data.data.co} route={$routeQuery.data.data.route} />
 
 			<div class="grid auto-cols-fr grid-flow-col gap-2 w-full">
 				<Button
@@ -91,9 +87,9 @@
 		{:else if $routeStopQuery.isError}
 			<p>錯誤發生</p>
 		{:else if $routeStopQuery.isSuccess}
-			<ul class="overflow-auto h-full snap-y no-scroll-bar">
+			<ul class="overflow-auto h-full no-scroll-bar">
 				{#each $routeStopQuery.data.data as routeStop}
-					<li class="mb-4 snap-start"><Stop stopId={routeStop.stop} {companyId} {route} /></li>
+					<li class="mb-4"><Stop stopId={routeStop.stop} {companyId} {route} /></li>
 				{/each}
 			</ul>
 		{/if}
