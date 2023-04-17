@@ -35,7 +35,7 @@
 </svelte:head>
 
 <div
-	class="py-4 grid grid-flow-cols routes-filter-grid gap-4 h-screen h-[100dvh] w-full px-4 max-w-xs"
+	class="py-4 grid grid-flow-cols routes-filter-grid gap-4 h-screen h-[100dvh] w-full px-4 max-w-md"
 >
 	<input
 		type="text"

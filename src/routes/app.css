@@ -19,7 +19,7 @@ svelte-virtual-list-viewport,
 }
 
 .stop-list-grid {
-  grid-template-rows: repeat(auto-fit, 24px);
+  grid-template-rows: repeat(auto-fit, minmax(min-content, 24px));
 }
 
 .route-stop-list-grid {
