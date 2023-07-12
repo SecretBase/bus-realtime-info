@@ -2,7 +2,6 @@
 	import { getETA, getETAQueryKey } from '$lib/api/eta';
 	import { getStop, getStopQueryKey } from '$lib/api/stop';
 	import type { CompanyId } from '$lib/api/types';
-	import { differenceInMinutes } from 'date-fns';
 	import { createQuery } from '@tanstack/svelte-query';
 	import LoadingSkeleton from '../../../../components/LoadingSkeleton.svelte';
 	import {

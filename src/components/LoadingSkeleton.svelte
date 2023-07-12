@@ -1,6 +1,6 @@
 <script lang="ts">
-	export let skeletonHeightClass: string = 'h-16';
-	export let numberOfSkeletonBar: number = 6;
+	export let skeletonHeightClass = 'h-16';
+	export let numberOfSkeletonBar = 6;
 </script>
 
 <div role="status" class="gap-4 grid animate-pulse">

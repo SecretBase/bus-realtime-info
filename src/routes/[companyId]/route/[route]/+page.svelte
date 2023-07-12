@@ -6,7 +6,6 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import LoadingSpinner from '../../../../components/LoadingSpinner.svelte';
 	import Button from '../../../../components/Button.svelte';
-	import CompanyBadge from '../../../../components/companyBadge.svelte';
 	import Stop from './stop.svelte';
 	import LoadingSkeleton from '../../../../components/LoadingSkeleton.svelte';
 	import RouteHeader from '../../../../components/RouteHeader.svelte';
