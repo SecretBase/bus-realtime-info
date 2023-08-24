@@ -45,11 +45,11 @@
 {:else if $etaQuery.isSuccess && $stopQuery.isSuccess}
 	<a
 		href={`/${companyId}/route/${route}/stop/${stopId}`}
-		class={`hover:shadow-lg bg-white shadow-md rounded-lg p-2 grid ${
-			showRouteNumber ? 'grid-cols-8' : 'grid-cols-5'
-		} items-center gap-4 stop-list-grid h-min box-border`}
+		class={`hover:shadow-lg bg-white shadow-md rounded-lg p-2 flex ${
+			showRouteNumber ? 'justify-between' : 'justify-start gap-4'
+		} items-center stop-list-grid h-min box-border`}
 	>
-		<div class="col-span-2">
+		<div class="col-span-3">
 			<ul>
 				{#each stopEtas ?? [] as eta}
 					<li>
@@ -77,11 +77,11 @@
 				{/each}
 			</ul>
 		</div>
-		<div class={`${showRouteNumber ? 'col-span-4 text-center' : 'col-span-3'} h-min`}>
+		<div class={`${showRouteNumber ? 'col-span-6 text-center' : 'col-span-3'} h-min`}>
 			{$stopQuery.data.data.name_tc}
 		</div>
 		{#if showRouteNumber}
-			<div class="col-span-2 text-end">
+			<div class="col-span-3 text-end">
 				<span class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center">
 					{route}
 				</span>
