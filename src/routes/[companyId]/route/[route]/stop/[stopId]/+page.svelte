@@ -16,6 +16,8 @@
 		sortEta
 	} from '$lib/stopEta';
 
+	import { favorites, type Stop } from '$lib/favoritesStore';
+
 	$: companyId = $page.params.companyId as CompanyId;
 	$: route = $page.params.route;
 	$: stopId = $page.params.stopId;
@@ -54,6 +56,11 @@
 	});
 
 	$: stopEtas = sortEta($etaQuery?.data?.data);
+
+	$: matchFavoritesStop = (stop: Stop) =>
+		stop.companyId === companyId && stop.stopId === stopId && stop.routeId === route;
+
+	$: hasFavorites = $favorites.stops.some(matchFavoritesStop);
 </script>
 
 <svelte:head>
@@ -75,8 +82,44 @@
 		{:else if $stopQuery.isError}
 			<p>錯誤發生</p>
 		{:else if $stopQuery.isSuccess}
-			<div class="bg-vesuvius-400 shadow-md p-4 rounded text-center text-vesuvius-900">
-				{$stopQuery?.data?.data.name_tc}
+			<div class="flex gap-2">
+				<div class="bg-vesuvius-400 shadow-md flex-1 p-4 rounded text-center text-vesuvius-900">
+					{$stopQuery?.data?.data.name_tc}
+				</div>
+				<button
+					type="button"
+					class="w-14 bg-vesuvius-400 rounded"
+					on:click={(event) => {
+						event.preventDefault();
+
+						if (hasFavorites) {
+							favorites.update((favorites) => {
+								return {
+									...favorites,
+									stops: favorites.stops.filter((stop) => !matchFavoritesStop(stop))
+								};
+							});
+						} else {
+							favorites.update((favorites) => {
+								return {
+									...favorites,
+									stops: favorites.stops.concat({ stopId, companyId, routeId: route })
+								};
+							});
+						}
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						height="1em"
+						viewBox="0 0 512 512"
+						class={`${hasFavorites ? 'fill-red-600' : 'fill-white'} w-6 h-6 mx-auto`}
+					>
+						<path
+							d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"
+						/>
+					</svg>
+				</button>
 			</div>
 		{/if}
 	</div>

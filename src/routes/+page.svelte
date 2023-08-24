@@ -18,7 +18,7 @@
 
 	$: ctbRoutes = $ctbQuery.data?.data ?? [];
 
-	$: routes = [...ctbRoutes].filter((route) => route.route.startsWith(routeFilter));
+	$: routes = ctbRoutes.filter((route) => route.route.startsWith(routeFilter));
 </script>
 
 <svelte:head>

@@ -14,6 +14,9 @@ dependencies:
   date-fns:
     specifier: ^2.29.3
     version: 2.29.3
+  svelte-local-storage-store:
+    specifier: ^0.6.0
+    version: 0.6.0(svelte@4.0.0)
   workbox-cacheable-response:
     specifier: ^6.5.4
     version: 6.5.4
@@ -2244,6 +2247,15 @@ packages:
     dependencies:
       svelte: 4.0.0
     dev: true
+
+  /svelte-local-storage-store@0.6.0(svelte@4.0.0):
+    resolution: {integrity: sha512-UbCY/yT/YUadU5IX/gZkoRQnA+ebFZHKKQjlJvfWHnBj3CPe9sNn8ndxYz/xy4LUzGjuBLq8+wH5RYK54ba3wA==}
+    engines: {node: '>=0.14'}
+    peerDependencies:
+      svelte: ^3.48.0 || ^4.0.0
+    dependencies:
+      svelte: 4.0.0
+    dev: false
 
   /svelte-preprocess@5.0.3(postcss@8.4.22)(svelte@4.0.0)(typescript@5.0.4):
     resolution: {integrity: sha512-GrHF1rusdJVbOZOwgPWtpqmaexkydznKzy5qIC2FabgpFyKN57bjMUUUqPRfbBXK5igiEWn1uO/DXsa2vJ5VHA==}
