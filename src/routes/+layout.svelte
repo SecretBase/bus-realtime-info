@@ -18,10 +18,11 @@
 
 <style>
 	.page {
-		--footer-height: 52px;
+		--footer-height: calc(env(safe-area-inset-bottom, 20px) + 52px);
 		--main-height: 100vh;
 		--main-height: 100dvh;
-		@apply h-screen h-[100dvh];
+		height: 100vh;
+		height: 100dvh;
 		grid-template-rows: calc(var(--main-height) - var(--footer-height)) var(--footer-height);
 		grid-template-rows: calc(var(--main-height) - var(--footer-height)) var(--footer-height);
 	}

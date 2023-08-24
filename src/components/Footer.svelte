@@ -1,9 +1,9 @@
 <script lang="ts"></script>
 
 <footer class="bg-vesuvius-700 text-white">
-	<div class="max-w-md w-full mx-auto h-full px-6 py-1">
-		<nav class="h-full">
-			<ul class="flex justify-evenly h-full">
+	<div class="max-w-md w-full mx-auto h-full px-6 py-1 flex">
+		<nav class="flex-1">
+			<ul class="flex justify-evenly pt-2">
 				<li class="flex items-center">
 					<a
 						href="/"
