@@ -49,9 +49,7 @@
 	</title>
 </svelte:head>
 
-<div
-	class="grid py-4 gap-4 h-screen h-[100dvh] routes-filter-grid w-full px-4 justify-center max-w-md"
->
+<div class="grid py-4 gap-4 h-full routes-filter-grid w-full px-4 justify-center max-w-md">
 	{#if $routeQuery.isLoading}
 		<LoadingSpinner />
 	{:else if $routeQuery.isError}

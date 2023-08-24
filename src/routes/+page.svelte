@@ -14,29 +14,18 @@
 			})
 	});
 
-	const nwfbQuery = createQuery({
-		staleTime: Infinity,
-		queryKey: getRoutesQueryKey({ companyId: 'NWFB' }),
-		queryFn: () =>
-			getRoutes({
-				companyId: 'NWFB'
-			})
-	});
-
 	let routeFilter = '';
 
 	$: ctbRoutes = $ctbQuery.data?.data ?? [];
-	$: nwfbRoutes = $nwfbQuery.data?.data ?? [];
-	$: routes = [...ctbRoutes, ...nwfbRoutes].filter((route) => route.route.startsWith(routeFilter));
+
+	$: routes = [...ctbRoutes].filter((route) => route.route.startsWith(routeFilter));
 </script>
 
 <svelte:head>
 	<title>Bus ETA</title>
 </svelte:head>
 
-<div
-	class="py-4 grid grid-flow-cols routes-filter-grid gap-4 h-screen h-[100dvh] w-full px-4 max-w-md"
->
+<div class="py-4 grid grid-flow-cols routes-filter-grid gap-4 h-full w-full px-4 max-w-md">
 	<input
 		type="text"
 		placeholder="輸入路線"
@@ -44,7 +33,7 @@
 		class="border-b p-4 bg-vesuvius-700 text-white placeholder:text-white text-center rounded-xl min-w-[200px]"
 	/>
 	<div class="min-h-0">
-		{#if $ctbQuery.isLoading || $nwfbQuery.isLoading}
+		{#if $ctbQuery.isLoading}
 			<LoadingSkeleton />
 		{:else}
 			<VirtualList items={routes} let:item itemHeight={56}>

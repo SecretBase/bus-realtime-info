@@ -46,23 +46,28 @@
 		href={`/${companyId}/route/${route}/stop/${stopId}`}
 		class="hover:shadow-lg bg-white shadow-md rounded-lg p-2 grid grid-cols-5 items-center gap-4 stop-list-grid block h-min box-border"
 	>
-		<div class="text-center col-span-2">
+		<div class="col-span-2">
 			<ul>
 				{#each stopEtas ?? [] as eta}
 					<li>
 						{#if isArrivalTimeLessThenOneMinutes(eta.etaDate)}
-							<span class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block">
+							<span
+								class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center"
+							>
 								{getDifferentInMinutesByTimeStamp(new Date(eta.eta).getTime())}分鐘
 							</span>
 						{:else}
-							<span class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block">
+							<span
+								class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center"
+							>
 								<span class="text-red-600 font-bold animate-pulse">即將到達</span>
 							</span>
 						{/if}
 					</li>
 				{:else}
 					<li>
-						<span class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block text-gray-600"
+						<span
+							class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center text-gray-600"
 							>沒有班次</span
 						>
 					</li>

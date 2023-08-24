@@ -67,9 +67,7 @@
 	</title>
 </svelte:head>
 
-<div
-	class="grid py-4 gap-4 h-screen h-[100dvh] routes-filter-grid w-full px-4 justify-center max-w-md"
->
+<div class="grid py-4 gap-4 h-full routes-filter-grid w-full px-4 justify-center max-w-md">
 	<div class="w-full min-w-xs">
 		<RouteHeader {companyId} {route} />
 		{#if $stopQuery.isLoading}
@@ -90,14 +88,18 @@
 		{:else if $etaQuery.isSuccess}
 			<ul class="grid gap-4">
 				{#each stopEtas ?? [] as eta}
-					<li class="p-2 bg-white shadow-md rounded flex justify-between items-center gap-4">
+					<li class="p-2 bg-white shadow-md rounded-lg flex justify-between items-center gap-4">
 						<span>
 							{#if isArrivalTimeLessThenOneMinutes(eta.etaDate)}
-								<span class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block">
+								<span
+									class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center"
+								>
 									{getDifferentInMinutesByTimeStamp(new Date(eta.eta).getTime())}分鐘
 								</span>
 							{:else}
-								<span class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block">
+								<span
+									class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center"
+								>
 									<span class="text-red-600 font-bold animate-pulse">即將到達</span>
 								</span>
 							{/if}
@@ -108,7 +110,8 @@
 					</li>
 				{:else}
 					<li class="p-4 bg-white shadow-md rounded">
-						<span class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block text-gray-600"
+						<span
+							class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center text-gray-600"
 							>沒有班次</span
 						>
 					</li>
