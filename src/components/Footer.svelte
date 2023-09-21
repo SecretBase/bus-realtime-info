@@ -45,3 +45,9 @@
 		</nav>
 	</div>
 </footer>
+
+<style>
+	footer {
+		view-transition-name: footer;
+	}
+</style>

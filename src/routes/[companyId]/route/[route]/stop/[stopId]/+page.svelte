@@ -83,8 +83,11 @@
 			<p>錯誤發生</p>
 		{:else if $stopQuery.isSuccess}
 			<div class="flex gap-2">
-				<div class="bg-vesuvius-400 shadow-md flex-1 p-4 rounded text-center text-vesuvius-900">
-					{$stopQuery?.data?.data.name_tc}
+				<div
+					class="bg-vesuvius-400 shadow-md flex-1 p-4 rounded text-center text-vesuvius-900"
+					style:--tag={`stop-item-${stopId}`}
+				>
+					<span style:--tag={`stop-title-${stopId}`}>{$stopQuery?.data?.data.name_tc}</span>
 				</div>
 				<button
 					type="button"

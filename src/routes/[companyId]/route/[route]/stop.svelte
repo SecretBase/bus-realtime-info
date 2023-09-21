@@ -45,6 +45,7 @@
 {:else if $etaQuery.isSuccess && $stopQuery.isSuccess}
 	<a
 		href={`/${companyId}/route/${route}/stop/${stopId}`}
+		style:--tag={`stop-item-${stopId}`}
 		class={`hover:shadow-lg bg-white shadow-md rounded-lg p-2 flex ${
 			showRouteNumber ? 'justify-between' : 'justify-start gap-4'
 		} items-center stop-list-grid h-min box-border`}
@@ -77,7 +78,10 @@
 				{/each}
 			</ul>
 		</div>
-		<div class={`${showRouteNumber ? 'col-span-6 text-center' : 'col-span-3'} h-min`}>
+		<div
+			class={`${showRouteNumber ? 'col-span-6 text-center' : 'col-span-3'} h-min`}
+			style:--tag={`stop-title-${stopId}`}
+		>
 			{$stopQuery.data.data.name_tc}
 		</div>
 		{#if showRouteNumber}

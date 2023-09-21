@@ -37,14 +37,17 @@
 			<LoadingSkeleton />
 		{:else}
 			<VirtualList items={routes} let:item itemHeight={56}>
-				<div class="bg-white border-px shadow-md rounded-xl hover:shadow-lg min-w-[200px] mb-4">
+				<div
+					class="bg-white border-px shadow-md rounded-xl hover:shadow-lg min-w-[200px] mb-4"
+					style:--tag={`header-${item.co}-${item.route}`}
+				>
 					<a
 						class="flex items-center p-4 gap-2"
 						href={`/${item.co}/route/${item.route}`}
 						data-sveltekit-preload-data="hover"
 					>
-						<CompanyBadge companyId={item.co} />
-						<span class="flex-1 text-center">{item.route}</span>
+						<CompanyBadge companyId={item.co} route={item.route} />
+						<span class="flex-1 text-center" style:--tag={`route-${item.route}`}>{item.route}</span>
 					</a>
 				</div>
 			</VirtualList>

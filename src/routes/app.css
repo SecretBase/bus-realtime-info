@@ -25,3 +25,17 @@ svelte-virtual-list-viewport,
 .route-stop-list-grid {
 	grid-template-rows: repeat(auto-fit, 56px);
 }
+
+@media (prefers-reduced-motion) {
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
+}
+
+[style*='--tag'] {
+	view-transition-name: var(--tag);
+	animation-duration: 300ms;
+	animation-timing-function: ease-out;
+}

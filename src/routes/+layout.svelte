@@ -1,13 +1,16 @@
 <script lang="ts">
 	import './app.css';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
+
 	import type { PageData } from './$types';
 	import Footer from '../components/Footer.svelte';
+	import ViewTransition from './ViewTransition.svelte';
 
 	export let data: PageData;
 </script>
 
 <QueryClientProvider client={data.queryClient}>
+	<ViewTransition />
 	<div class="grid page">
 		<main class="container mx-auto flex justify-center flex-col items-center h-full">
 			<slot />
