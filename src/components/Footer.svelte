@@ -1,4 +1,6 @@
-<script lang="ts"></script>
+<script lang="ts">
+	import { page } from '$app/stores';
+</script>
 
 <footer class="bg-vesuvius-700 text-white">
 	<div class="mx-auto flex h-full w-full max-w-md px-6 py-1">
@@ -7,7 +9,9 @@
 				<li class="flex items-center">
 					<a
 						href="/"
-						class="flex flex-col items-center justify-center [&_svg]:hover:fill-vesuvius-400"
+						class={`flex flex-col items-center justify-center [&_svg]:hover:fill-vesuvius-300 ${
+							$page.url.pathname === '/' ? '[&_svg]:fill-vesuvius-400' : ''
+						}`}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +30,9 @@
 				<li class="flex items-center">
 					<a
 						href="/favorites"
-						class="flex flex-col items-center justify-center [&_svg]:hover:fill-red-600"
+						class={`flex flex-col items-center justify-center [&_svg]:hover:fill-red-500 ${
+							$page.url.pathname === '/favorites' ? '[&_svg]:fill-red-600' : ''
+						}`}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -45,9 +51,3 @@
 		</nav>
 	</div>
 </footer>
-
-<style>
-	footer {
-		view-transition-name: footer;
-	}
-</style>
