@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getRoutes, getRoutesQueryKey } from '$lib/api/routes';
+	// @ts-ignore
 	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { createQuery } from '@tanstack/svelte-query';
 	import CompanyBadge from '../components/companyBadge.svelte';

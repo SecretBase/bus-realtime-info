@@ -12,12 +12,6 @@ const config = {
 			edge: true,
 			split: false
 		})
-		// adapter: adapter({
-		// 	fallback: 'index.html',
-		// 	precompress: true,
-		// 	strict: true
-		// }),
-		// prerender: { entries: [] }
 	}
 };
 
