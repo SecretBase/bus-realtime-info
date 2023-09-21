@@ -11,8 +11,10 @@
 
 <QueryClientProvider client={data.queryClient}>
 	<ViewTransition />
-	<div class="grid page">
-		<main class="container mx-auto flex justify-center flex-col items-center h-full">
+	<div class="page grid">
+		<main
+			class="container mx-auto flex h-full flex-col items-center justify-center"
+		>
 			<slot />
 		</main>
 		<Footer />
@@ -26,7 +28,11 @@
 		--main-height: 100dvh;
 		height: 100vh;
 		height: 100dvh;
-		grid-template-rows: calc(var(--main-height) - var(--footer-height)) var(--footer-height);
-		grid-template-rows: calc(var(--main-height) - var(--footer-height)) var(--footer-height);
+		grid-template-rows: calc(var(--main-height) - var(--footer-height)) var(
+				--footer-height
+			);
+		grid-template-rows: calc(var(--main-height) - var(--footer-height)) var(
+				--footer-height
+			);
 	}
 </style>

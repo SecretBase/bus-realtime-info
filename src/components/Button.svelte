@@ -21,7 +21,9 @@
 				break;
 		}
 
-		return `${[baseClass, buttonClassnames, $$props.class].filter(Boolean).join(' ')}`;
+		return `${[baseClass, buttonClassnames, $$props.class]
+			.filter(Boolean)
+			.join(' ')}`;
 	}
 </script>
 

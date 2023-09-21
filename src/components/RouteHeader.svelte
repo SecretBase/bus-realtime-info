@@ -8,11 +8,11 @@
 
 <a href={`/${companyId}/route/${route}`}>
 	<h1
-		class="w-full py-4 px-6 mb-4 text-2xl flex gap-2 items-center justify-center bg-white shadow-md rounded-xl"
+		class="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-4 text-2xl shadow-md"
 		style:--tag={`header-${companyId}-${route}`}
 	>
 		<CompanyBadge {companyId} {route} />
-		<span class="text-vesuvius-900 font-bold">
+		<span class="font-bold text-vesuvius-900">
 			{route}
 		</span>
 	</h1>

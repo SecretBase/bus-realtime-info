@@ -14,16 +14,18 @@
 	<title>Favorites | Bus ETA</title>
 </svelte:head>
 
-<div class="py-4 grid grid-flow-cols routes-filter-grid gap-4 h-full w-full px-4 max-w-md">
+<div
+	class="grid-flow-cols routes-filter-grid grid h-full w-full max-w-md gap-4 px-4 py-4"
+>
 	<input
 		type="text"
 		placeholder="輸入路線"
 		bind:value={filterString}
-		class="border-b p-4 bg-vesuvius-700 text-white placeholder:text-white text-center rounded-xl min-w-[200px]"
+		class="min-w-[200px] rounded-xl border-b bg-vesuvius-700 p-4 text-center text-white placeholder:text-white"
 	/>
 
-	<div class="w-full min-h-0">
-		<ul class="overflow-auto h-full no-scroll-bar">
+	<div class="min-h-0 w-full">
+		<ul class="no-scroll-bar h-full overflow-auto">
 			{#each stops as stop}
 				<li class="mb-4">
 					<Stop

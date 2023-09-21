@@ -25,12 +25,14 @@
 	<title>Bus ETA</title>
 </svelte:head>
 
-<div class="py-4 grid grid-flow-cols routes-filter-grid gap-4 h-full w-full px-4 max-w-md">
+<div
+	class="grid-flow-cols routes-filter-grid grid h-full w-full max-w-md gap-4 px-4 py-4"
+>
 	<input
 		type="text"
 		placeholder="輸入路線"
 		bind:value={routeFilter}
-		class="border-b p-4 bg-vesuvius-700 text-white placeholder:text-white text-center rounded-xl min-w-[200px]"
+		class="min-w-[200px] rounded-xl border-b bg-vesuvius-700 p-4 text-center text-white placeholder:text-white"
 	/>
 	<div class="min-h-0">
 		{#if $ctbQuery.isLoading}
@@ -38,16 +40,18 @@
 		{:else}
 			<VirtualList items={routes} let:item itemHeight={56}>
 				<div
-					class="bg-white border-px shadow-md rounded-xl hover:shadow-lg min-w-[200px] mb-4"
+					class="border-px mb-4 min-w-[200px] rounded-xl bg-white shadow-md hover:shadow-lg"
 					style:--tag={`header-${item.co}-${item.route}`}
 				>
 					<a
-						class="flex items-center p-4 gap-2"
+						class="flex items-center gap-2 p-4"
 						href={`/${item.co}/route/${item.route}`}
 						data-sveltekit-preload-data="hover"
 					>
 						<CompanyBadge companyId={item.co} route={item.route} />
-						<span class="flex-1 text-center" style:--tag={`route-${item.route}`}>{item.route}</span>
+						<span class="flex-1 text-center" style:--tag={`route-${item.route}`}
+							>{item.route}</span
+						>
 					</a>
 				</div>
 			</VirtualList>

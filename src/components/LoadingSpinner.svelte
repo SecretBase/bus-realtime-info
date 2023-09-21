@@ -1,7 +1,9 @@
 <div role="status">
 	<svg
 		aria-hidden="true"
-		class={`w-8 h-8 text-vesuvius-400 animate-spin fill-vesuvius-700 ${$$props.class ?? ''}`}
+		class={`h-8 w-8 animate-spin fill-vesuvius-700 text-vesuvius-400 ${
+			$$props.class ?? ''
+		}`}
 		viewBox="0 0 100 101"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"

@@ -1,6 +1,9 @@
 import type { APIResponse, Company, CompanyId } from './types';
 
-export const getCompanyQueryKey = (companyId: CompanyId) => ['company', companyId];
+export const getCompanyQueryKey = (companyId: CompanyId) => [
+	'company',
+	companyId
+];
 
 export const getCompany = async (
 	companyId: CompanyId

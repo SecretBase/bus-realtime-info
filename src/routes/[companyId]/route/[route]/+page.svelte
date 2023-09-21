@@ -49,19 +49,24 @@
 	</title>
 </svelte:head>
 
-<div class="grid py-4 gap-4 h-full routes-filter-grid w-full px-4 justify-center max-w-md">
+<div
+	class="routes-filter-grid grid h-full w-full max-w-md justify-center gap-4 px-4 py-4"
+>
 	{#if $routeQuery.isLoading}
 		<LoadingSpinner />
 	{:else if $routeQuery.isError}
 		<p>錯誤發生</p>
 	{:else if $routeQuery.isSuccess}
 		<div class="w-full">
-			<RouteHeader companyId={$routeQuery.data.data.co} route={$routeQuery.data.data.route} />
+			<RouteHeader
+				companyId={$routeQuery.data.data.co}
+				route={$routeQuery.data.data.route}
+			/>
 
-			<div class="grid auto-cols-fr grid-flow-col gap-2 w-full">
+			<div class="grid w-full auto-cols-fr grid-flow-col gap-2">
 				<Button
 					type="button"
-					class="py-4 px-6"
+					class="px-6 py-4"
 					variant={direction === 'inbound' ? 'primary' : 'secondary'}
 					on:click={() => {
 						direction = 'inbound';
@@ -69,7 +74,7 @@
 				>
 				<Button
 					type="button"
-					class="py-4 px-6"
+					class="px-6 py-4"
 					variant={direction === 'outbound' ? 'primary' : 'secondary'}
 					on:click={() => {
 						direction = 'outbound';
@@ -78,15 +83,17 @@
 			</div>
 		</div>
 	{/if}
-	<div class="w-full min-h-0">
+	<div class="min-h-0 w-full">
 		{#if $routeStopQuery.isLoading}
 			<LoadingSkeleton skeletonHeightClass="h-14" />
 		{:else if $routeStopQuery.isError}
 			<p>錯誤發生</p>
 		{:else if $routeStopQuery.isSuccess}
-			<ul class="overflow-auto h-full no-scroll-bar">
+			<ul class="no-scroll-bar h-full overflow-auto">
 				{#each $routeStopQuery.data.data as routeStop}
-					<li class="mb-4"><Stop stopId={routeStop.stop} {companyId} {route} /></li>
+					<li class="mb-4">
+						<Stop stopId={routeStop.stop} {companyId} {route} />
+					</li>
 				{/each}
 			</ul>
 		{/if}

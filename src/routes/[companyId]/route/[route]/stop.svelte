@@ -46,9 +46,9 @@
 	<a
 		href={`/${companyId}/route/${route}/stop/${stopId}`}
 		style:--tag={`stop-item-${stopId}`}
-		class={`hover:shadow-lg bg-white shadow-md rounded-lg p-2 flex ${
+		class={`flex rounded-lg bg-white p-2 shadow-md hover:shadow-lg ${
 			showRouteNumber ? 'justify-between' : 'justify-start gap-4'
-		} items-center stop-list-grid h-min box-border`}
+		} stop-list-grid box-border h-min items-center`}
 	>
 		<div class="col-span-3">
 			<ul>
@@ -56,15 +56,19 @@
 					<li>
 						{#if isArrivalTimeLessThenOneMinutes(eta.etaDate)}
 							<span
-								class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center"
+								class="inline-block min-w-[76px] rounded-full bg-vesuvius-300 px-3 py-2 text-center"
 							>
-								{getDifferentInMinutesByTimeStamp(new Date(eta.eta).getTime())}分鐘
+								{getDifferentInMinutesByTimeStamp(
+									new Date(eta.eta).getTime()
+								)}分鐘
 							</span>
 						{:else}
 							<span
-								class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center"
+								class="inline-block min-w-[76px] rounded-full bg-vesuvius-300 px-3 py-2 text-center"
 							>
-								<span class="text-red-600 font-bold animate-pulse">即將到達</span>
+								<span class="animate-pulse font-bold text-red-600"
+									>即將到達</span
+								>
 							</span>
 						{/if}
 					</li>
@@ -79,14 +83,18 @@
 			</ul>
 		</div>
 		<div
-			class={`${showRouteNumber ? 'col-span-6 text-center' : 'col-span-3'} h-min`}
+			class={`${
+				showRouteNumber ? 'col-span-6 text-center' : 'col-span-3'
+			} h-min`}
 			style:--tag={`stop-title-${stopId}`}
 		>
 			{$stopQuery.data.data.name_tc}
 		</div>
 		{#if showRouteNumber}
 			<div class="col-span-3 text-end">
-				<span class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center">
+				<span
+					class="inline-block min-w-[76px] rounded-full bg-vesuvius-300 px-3 py-2 text-center"
+				>
 					{route}
 				</span>
 			</div>
