@@ -5,6 +5,8 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import CompanyBadge from '../components/companyBadge.svelte';
 	import LoadingSkeleton from '../components/LoadingSkeleton.svelte';
+	import { onDestroy, onMount } from 'svelte';
+	import { browser } from '$app/environment';
 
 	const ctbQuery = createQuery({
 		staleTime: Infinity,
@@ -20,6 +22,26 @@
 	$: ctbRoutes = $ctbQuery.data?.data ?? [];
 
 	$: routes = ctbRoutes.filter((route) => route.route.startsWith(routeFilter));
+
+	let routeListContainer: HTMLDivElement;
+	let containerHeight = 0;
+	let resizeObserver: ResizeObserver;
+	onMount(() => {
+		if (!browser) return;
+
+		containerHeight = routeListContainer.clientHeight;
+
+		resizeObserver = new ResizeObserver((entries) => {
+			containerHeight = routeListContainer.clientHeight;
+		});
+
+		resizeObserver.observe(routeListContainer);
+	});
+
+	onDestroy(() => {
+		if (!browser) return;
+		resizeObserver?.disconnect();
+	});
 </script>
 
 <svelte:head>
@@ -35,11 +57,16 @@
 		bind:value={routeFilter}
 		class="min-w-[200px] rounded-xl border-b bg-vesuvius-700 p-4 text-center text-white placeholder:text-white"
 	/>
-	<div class="min-h-0">
+	<div class="min-h-0" bind:this={routeListContainer}>
 		{#if $ctbQuery.isLoading}
 			<LoadingSkeleton />
 		{:else}
-			<VirtualList items={routes} let:item itemHeight={56}>
+			<VirtualList
+				items={routes}
+				let:item
+				itemHeight={56}
+				height={`${containerHeight}px`}
+			>
 				<div
 					class="border-px mb-4 min-w-[200px] rounded-xl bg-white shadow-md hover:shadow-lg"
 					style:--tag={`header-${item.co}-${item.route}`}

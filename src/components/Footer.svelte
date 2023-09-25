@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 </script>
 
-<footer class="bg-vesuvius-700 text-white">
+<footer class="z-50 bg-vesuvius-700 text-white" style:--tag="footer">
 	<div class="mx-auto flex h-full w-full max-w-md px-6 py-1">
 		<nav class="flex-1">
 			<ul class="flex justify-evenly pt-2">
