@@ -1,8 +1,16 @@
 <script lang="ts">
 	type ButtonVariant = 'primary' | 'secondary';
-	export let variant: ButtonVariant = 'primary';
 
-	$: classnames = getButtonStyle(variant);
+	const {
+		variant = 'primary',
+		class: className = '',
+		children,
+		...rest
+	} = $props<{
+		variant: ButtonVariant;
+	}>();
+
+	const classnames = $derived(getButtonStyle(variant));
 
 	function getButtonStyle(variant: ButtonVariant) {
 		const baseClass = 'rounded p-2';
@@ -21,10 +29,10 @@
 				break;
 		}
 
-		return `${[baseClass, buttonClassnames, $$props.class]
+		return `${[baseClass, buttonClassnames, className]
 			.filter(Boolean)
 			.join(' ')}`;
 	}
 </script>
 
-<button {...$$props} on:click class={classnames}> <slot /></button>
+<button {...rest} class={classnames}>{@render children()}</button>

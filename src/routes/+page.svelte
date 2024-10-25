@@ -17,14 +17,16 @@
 			})
 	});
 
-	let routeFilter = '';
+	let routeFilter = $state('');
 
-	$: ctbRoutes = $ctbQuery.data?.data ?? [];
+	const ctbRoutes = $derived($ctbQuery.data?.data ?? []);
 
-	$: routes = ctbRoutes.filter((route) => route.route.startsWith(routeFilter));
+	const routes = $derived(
+		ctbRoutes.filter((route) => route.route.startsWith(routeFilter))
+	);
 
 	let routeListContainer: HTMLDivElement;
-	let containerHeight = 0;
+	let containerHeight = $state(0);
 	let resizeObserver: ResizeObserver;
 	onMount(() => {
 		if (!browser) return;

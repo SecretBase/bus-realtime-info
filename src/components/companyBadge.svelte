@@ -1,8 +1,10 @@
 <script lang="ts">
 	import type { CompanyId } from '$lib/api/types';
 
-	export let companyId: CompanyId;
-	export let route: string;
+	const { companyId, route } = $props<{
+		companyId: CompanyId;
+		route: string;
+	}>();
 </script>
 
 <span

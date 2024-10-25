@@ -3,10 +3,12 @@
 
 	import Stop from '../[companyId]/route/[route]/stop.svelte';
 
-	let filterString = '';
+	let filterString = $state('');
 
-	$: stops = $favorites.stops.filter((stop) =>
-		stop.routeId.toLowerCase().startsWith(filterString.toLocaleUpperCase())
+	const stops = $derived(
+		$favorites.stops.filter((stop) =>
+			stop.routeId.toLowerCase().startsWith(filterString.toLocaleUpperCase())
+		)
 	);
 </script>
 

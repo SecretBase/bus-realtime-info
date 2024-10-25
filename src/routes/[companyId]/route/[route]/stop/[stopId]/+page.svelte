@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { CompanyId } from '$lib/api/types';
-	import { format } from 'date-fns';
+	import { format, parseISO } from 'date-fns';
 	import { zhHK } from 'date-fns/locale';
 	import { page } from '$app/stores';
 	import RouteHeader from '../../../../../../components/RouteHeader.svelte';
@@ -18,11 +18,11 @@
 
 	import { favorites, type Stop } from '$lib/favoritesStore';
 
-	$: companyId = $page.params.companyId as CompanyId;
-	$: route = $page.params.route;
-	$: stopId = $page.params.stopId;
+	const companyId = $state($page.params.companyId as CompanyId);
+	const route = $state($page.params.route);
+	const stopId = $state($page.params.stopId);
 
-	$: routeQuery = createQuery({
+	const routeQuery = createQuery({
 		queryKey: getRoutesQueryKey({
 			companyId,
 			route
@@ -34,13 +34,13 @@
 			})
 	});
 
-	$: stopQuery = createQuery({
+	const stopQuery = createQuery({
 		queryKey: getStopQueryKey({ stopId }),
 		queryFn: () => getStop({ stopId })
 	});
 
 	const REFETCH_EVERY_TEN_SECONDS = 10000;
-	$: etaQuery = createQuery({
+	const etaQuery = createQuery({
 		queryKey: getETAQueryKey({
 			companyId,
 			stopId,
@@ -55,14 +55,14 @@
 			})
 	});
 
-	$: stopEtas = sortEta($etaQuery?.data?.data);
+	const stopEtas = $derived(sortEta($etaQuery.data?.data));
 
-	$: matchFavoritesStop = (stop: Stop) =>
+	const matchFavoritesStop = (stop: Stop) =>
 		stop.companyId === companyId &&
 		stop.stopId === stopId &&
 		stop.routeId === route;
 
-	$: hasFavorites = $favorites.stops.some(matchFavoritesStop);
+	const hasFavorites = $derived($favorites.stops.some(matchFavoritesStop));
 </script>
 
 <svelte:head>
@@ -70,8 +70,8 @@
 		{$stopQuery?.data?.data.name_tc ?? ''} | {companyId === 'CTB'
 			? '城巴'
 			: companyId === 'NWFB'
-			? '新巴'
-			: ''}
+				? '新巴'
+				: ''}
 		{$routeQuery?.data?.data.route ?? ''} | Bus ETA
 	</title>
 </svelte:head>
@@ -98,7 +98,7 @@
 				<button
 					type="button"
 					class="w-14 rounded bg-vesuvius-400"
-					on:click={(event) => {
+					onclick={(event) => {
 						event.preventDefault();
 
 						if (hasFavorites) {
@@ -174,7 +174,9 @@
 							{/if}
 						</span>
 						<span class="flex-1 text-end">
-							{format(new Date(eta.etaDate), 'HH:mm:ss', { locale: zhHK })}
+							{eta.eta
+								? format(new Date(eta.eta), 'HH:mm:ss', { locale: zhHK })
+								: ''}
 						</span>
 					</li>
 				{:else}

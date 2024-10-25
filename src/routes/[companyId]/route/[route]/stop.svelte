@@ -9,33 +9,45 @@
 		isArrivalTimeLessThenOneMinutes,
 		sortEta
 	} from '$lib/stopEta';
-	export let stopId: string;
-	export let companyId: CompanyId;
-	export let route: string;
-	export let showRouteNumber: boolean = false;
 
-	$: stopQuery = createQuery({
-		queryKey: getStopQueryKey({ stopId }),
-		queryFn: () => getStop({ stopId })
-	});
+	const {
+		stopId,
+		companyId,
+		route,
+		showRouteNumber = false
+	} = $props<{
+		stopId: string;
+		companyId: CompanyId;
+		route: string;
+		showRouteNumber?: boolean;
+	}>();
+
+	const stopQuery = $derived(
+		createQuery({
+			queryKey: getStopQueryKey({ stopId }),
+			queryFn: () => getStop({ stopId })
+		})
+	);
 
 	const REFETCH_EVERY_TEN_SECONDS = 10000;
-	$: etaQuery = createQuery({
-		queryKey: getETAQueryKey({
-			companyId,
-			stopId,
-			route
-		}),
-		refetchInterval: REFETCH_EVERY_TEN_SECONDS,
-		queryFn: () =>
-			getETA({
+	const etaQuery = $derived(
+		createQuery({
+			queryKey: getETAQueryKey({
 				companyId,
 				stopId,
 				route
-			})
-	});
+			}),
+			refetchInterval: REFETCH_EVERY_TEN_SECONDS,
+			queryFn: () =>
+				getETA({
+					companyId,
+					stopId,
+					route
+				})
+		})
+	);
 
-	$: stopEtas = sortEta($etaQuery?.data?.data)?.slice(0, 1);
+	const stopEtas = $derived(sortEta($etaQuery?.data?.data)?.slice(0, 1));
 </script>
 
 {#if $etaQuery.isLoading || $stopQuery.isLoading}

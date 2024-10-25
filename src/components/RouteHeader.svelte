@@ -2,8 +2,10 @@
 	import type { CompanyId } from '$lib/api/types';
 	import CompanyBadge from './companyBadge.svelte';
 
-	export let companyId: CompanyId;
-	export let route: string;
+	const { companyId, route } = $props<{
+		companyId: CompanyId;
+		route: string;
+	}>();
 </script>
 
 <a href={`/${companyId}/route/${route}`}>

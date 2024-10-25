@@ -10,12 +10,12 @@
 	import LoadingSkeleton from '../../../../components/LoadingSkeleton.svelte';
 	import RouteHeader from '../../../../components/RouteHeader.svelte';
 
-	let direction: Direction = 'inbound';
+	let direction: Direction = $state('inbound');
 
-	$: companyId = $page.params.companyId as CompanyId;
-	$: route = $page.params.route;
+	const companyId = $state($page.params.companyId as CompanyId);
+	const route = $state($page.params.route);
 
-	$: routeQuery = createQuery({
+	const routeQuery = createQuery({
 		queryKey: getRoutesQueryKey({
 			companyId,
 			route
@@ -27,19 +27,21 @@
 			})
 	});
 
-	$: routeStopQuery = createQuery({
-		queryKey: getRouteStopQueryKey({
-			companyId,
-			route,
-			direction
-		}),
-		queryFn: () =>
-			getRouteStop({
+	const routeStopQuery = $derived(
+		createQuery({
+			queryKey: getRouteStopQueryKey({
 				companyId,
 				route,
 				direction
-			})
-	});
+			}),
+			queryFn: () =>
+				getRouteStop({
+					companyId,
+					route,
+					direction
+				})
+		})
+	);
 </script>
 
 <svelte:head>
@@ -68,7 +70,7 @@
 					type="button"
 					class="px-6 py-4"
 					variant={direction === 'inbound' ? 'primary' : 'secondary'}
-					on:click={() => {
+					onclick={() => {
 						direction = 'inbound';
 					}}>往{$routeQuery.data.data.orig_tc}</Button
 				>
@@ -76,7 +78,7 @@
 					type="button"
 					class="px-6 py-4"
 					variant={direction === 'outbound' ? 'primary' : 'secondary'}
-					on:click={() => {
+					onclick={() => {
 						direction = 'outbound';
 					}}>往{$routeQuery.data.data.dest_tc}</Button
 				>

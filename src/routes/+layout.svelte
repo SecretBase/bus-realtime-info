@@ -6,7 +6,7 @@
 	import Footer from '../components/Footer.svelte';
 	import ViewTransition from './ViewTransition.svelte';
 
-	export let data: PageData;
+	const { data, children } = $props<{ data: PageData }>();
 </script>
 
 <QueryClientProvider client={data.queryClient}>
@@ -15,7 +15,7 @@
 		<main
 			class="container mx-auto flex h-full flex-col items-center justify-center"
 		>
-			<slot />
+			{@render children()}
 		</main>
 		<Footer />
 	</div>
