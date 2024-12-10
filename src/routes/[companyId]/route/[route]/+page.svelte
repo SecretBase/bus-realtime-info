@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getRoute, getRoutesQueryKey } from '$lib/api/routes';
-	import { getRouteStop, getRouteStopQueryKey } from '$lib/api/routeStop';
-	import type { CompanyId, Direction } from '$lib/api/types';
+	import {
+		getRoute,
+		getRoutesQueryKey,
+		getRouteStop,
+		getRouteStopQueryKey
+	} from '$lib/api/ctb';
+	import type { CompanyId, Direction } from '$lib/api/ctb/types';
 	import { createQuery } from '@tanstack/svelte-query';
 	import LoadingSpinner from '../../../../components/LoadingSpinner.svelte';
 	import Button from '../../../../components/Button.svelte';

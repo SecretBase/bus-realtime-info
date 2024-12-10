@@ -10,8 +10,6 @@
 	import ViewTransition from './ViewTransition.svelte';
 
 	const { data, children } = $props<{ data: PageData }>();
-
-	console.log({ dev });
 </script>
 
 {#if dev === false}

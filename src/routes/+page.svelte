@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getRoutes, getRoutesQueryKey } from '$lib/api/routes';
+	import { getRoutes, getRoutesQueryKey } from '$lib/api/ctb';
 	// @ts-ignore
 	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -7,7 +7,7 @@
 	import LoadingSkeleton from '../components/LoadingSkeleton.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import { type Route } from '$lib/api/types';
+	import { type Route } from '$lib/api/ctb/types';
 
 	const ctbQuery = createQuery({
 		staleTime: Infinity,

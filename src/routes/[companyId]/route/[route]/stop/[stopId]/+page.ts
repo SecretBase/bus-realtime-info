@@ -1,6 +1,6 @@
-import { getRoute, getRoutesQueryKey } from '$lib/api/routes';
-import { getStop, getStopQueryKey } from '$lib/api/stop';
-import type { CompanyId } from '$lib/api/types';
+import { getRoute, getRoutesQueryKey } from '$lib/api/ctb';
+import { getStop, getStopQueryKey } from '$lib/api/ctb';
+import type { CompanyId } from '$lib/api/ctb/types';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ parent, params }) => {

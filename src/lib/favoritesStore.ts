@@ -1,5 +1,5 @@
 import { persisted } from 'svelte-local-storage-store';
-import type { CompanyId } from './api/types';
+import type { CompanyId } from './api/ctb/types';
 
 export type Stop = {
 	companyId: CompanyId;

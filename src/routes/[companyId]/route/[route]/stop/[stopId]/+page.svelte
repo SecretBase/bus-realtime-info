@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { CompanyId } from '$lib/api/types';
+	import type { CompanyId } from '$lib/api/ctb/types';
 	import { format, parseISO } from 'date-fns';
 	import { zhHK } from 'date-fns/locale';
 	import { page } from '$app/stores';
 	import RouteHeader from '../../../../../../components/RouteHeader.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { getStop, getStopQueryKey } from '$lib/api/stop';
-	import { getETA, getETAQueryKey } from '$lib/api/eta';
-	import { getRoute, getRoutesQueryKey } from '$lib/api/routes';
+	import { getStop, getStopQueryKey } from '$lib/api/ctb';
+	import { getETA, getETAQueryKey } from '$lib/api/ctb';
+	import { getRoute, getRoutesQueryKey } from '$lib/api/ctb';
 	import LoadingSkeleton from '../../../../../../components/LoadingSkeleton.svelte';
 
 	import {

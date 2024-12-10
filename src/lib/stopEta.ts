@@ -1,5 +1,5 @@
 import { differenceInMinutes } from 'date-fns';
-import type { ETA } from './api/types';
+import type { ETA } from './api/ctb/types';
 
 export function getDifferentInMinutesByTimeStamp(time: number) {
 	return Math.max(0, differenceInMinutes(time, new Date()));

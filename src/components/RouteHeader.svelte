@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CompanyId } from '$lib/api/types';
+	import type { CompanyId } from '$lib/api/ctb/types';
 	import CompanyBadge from './companyBadge.svelte';
 
 	const { companyId, route } = $props<{

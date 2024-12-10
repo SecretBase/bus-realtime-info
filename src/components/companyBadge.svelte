@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CompanyId } from '$lib/api/types';
+	import type { CompanyId } from '$lib/api/ctb/types';
 
 	const { companyId, route } = $props<{
 		companyId: CompanyId;

@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { getETA, getETAQueryKey } from '$lib/api/eta';
-	import { getStop, getStopQueryKey } from '$lib/api/stop';
-	import type { CompanyId } from '$lib/api/types';
+	import {
+		getETA,
+		getETAQueryKey,
+		getStop,
+		getStopQueryKey
+	} from '$lib/api/ctb';
+
+	import type { CompanyId } from '$lib/api/ctb/types';
 	import { createQuery } from '@tanstack/svelte-query';
 	import LoadingSkeleton from '../../../../components/LoadingSkeleton.svelte';
 	import {
