@@ -1,8 +1,13 @@
+<script>
+	/** @type {{ [key: string]: any }} */
+	let { ...props } = $props();
+</script>
+
 <div role="status">
 	<svg
 		aria-hidden="true"
 		class={`h-8 w-8 animate-spin fill-vesuvius-700 text-vesuvius-400 ${
-			$$props.class ?? ''
+			props.class ?? ''
 		}`}
 		viewBox="0 0 100 101"
 		fill="none"

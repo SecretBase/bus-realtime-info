@@ -1,14 +1,22 @@
 <script lang="ts">
 	import './app.css';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
+	import { dev } from '$app/environment';
+
+	import Analytics from '../components/analytics.svelte';
 
 	import type { PageData } from './$types';
 	import Footer from '../components/Footer.svelte';
 	import ViewTransition from './ViewTransition.svelte';
 
 	const { data, children } = $props<{ data: PageData }>();
+
+	console.log({ dev });
 </script>
 
+{#if dev === false}
+	<Analytics />
+{/if}
 <QueryClientProvider client={data.queryClient}>
 	<ViewTransition />
 	<div class="page grid">

@@ -7,6 +7,7 @@
 	import LoadingSkeleton from '../components/LoadingSkeleton.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import { type Route } from '$lib/api/types';
 
 	const ctbQuery = createQuery({
 		staleTime: Infinity,
@@ -65,25 +66,27 @@
 		{:else}
 			<VirtualList
 				items={routes}
-				let:item
 				itemHeight={56}
 				height={`${containerHeight}px`}
 			>
-				<div
-					class="border-px mb-4 min-w-[200px] rounded-xl bg-white shadow-md hover:shadow-lg"
-					style:--tag={`header-${item.co}-${item.route}`}
-				>
-					<a
-						class="flex items-center gap-2 p-4"
-						href={`/${item.co}/route/${item.route}`}
-						data-sveltekit-preload-data="hover"
+				{#snippet children({ item }: { item: Route })}
+					<div
+						class="border-px mb-4 min-w-[200px] rounded-xl bg-white shadow-md hover:shadow-lg"
+						style:--tag={`header-${item.co}-${item.route}`}
 					>
-						<CompanyBadge companyId={item.co} route={item.route} />
-						<span class="flex-1 text-center" style:--tag={`route-${item.route}`}
-							>{item.route}</span
+						<a
+							class="flex items-center gap-2 p-4"
+							href={`/${item.co}/route/${item.route}`}
+							data-sveltekit-preload-data="hover"
 						>
-					</a>
-				</div>
+							<CompanyBadge companyId={item.co} route={item.route} />
+							<span
+								class="flex-1 text-center"
+								style:--tag={`route-${item.route}`}>{item.route}</span
+							>
+						</a>
+					</div>
+				{/snippet}
 			</VirtualList>
 		{/if}
 	</div>
