@@ -28,7 +28,7 @@
 		companyId: CompanyId;
 		route: string;
 		showRouteNumber?: boolean;
-		direction: Direction;
+		direction?: Direction;
 	}>();
 
 	const stopQuery = $derived(

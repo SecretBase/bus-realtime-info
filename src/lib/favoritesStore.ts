@@ -5,6 +5,7 @@ export type Stop = {
 	companyId: CompanyId;
 	routeId: string;
 	stopId: string;
+	direction?: string;
 };
 
 // First param `preferences` is the local storage key.

@@ -10,6 +10,10 @@
 	import { getETA, getETAQueryKey } from '$lib/api/ctb';
 	import { getRoute, getRoutesQueryKey } from '$lib/api/ctb';
 	import LoadingSkeleton from '../../../../../../components/LoadingSkeleton.svelte';
+	import {
+		getRoute as getKMBRoute,
+		getRouteStop as getKMBRouteStop
+	} from '$lib/api/kmb';
 
 	import {
 		getDifferentInMinutesByTimeStamp,
@@ -29,10 +33,16 @@
 			route
 		}),
 		queryFn: () => {
-			return getRoute({
-				companyId,
-				route
-			});
+			return companyId === 'CTB'
+				? getRoute({
+						companyId,
+						route
+					})
+				: getKMBRoute({
+						direction: $page.url.searchParams.get('direction') as string,
+						route,
+						serviceType: '1'
+					});
 		}
 	});
 
@@ -126,7 +136,8 @@
 									stops: favorites.stops.concat({
 										stopId,
 										companyId,
-										routeId: route
+										routeId: route,
+										direction: $page.url.searchParams.get('direction') as string
 									})
 								};
 							});

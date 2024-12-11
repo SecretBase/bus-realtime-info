@@ -34,6 +34,7 @@
 						stopId={stop.stopId}
 						companyId={stop.companyId}
 						route={stop.routeId}
+						direction={stop.direction}
 						showRouteNumber
 					/>
 				</li>
