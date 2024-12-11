@@ -37,6 +37,7 @@
 		"@sveltejs/svelte-virtual-list": "^3.0.1",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@tanstack/svelte-query": "^5.59.16",
+		"axios": "^1.7.9",
 		"date-fns": "^4.1.0",
 		"svelte-local-storage-store": "^0.6.4",
 		"workbox-cacheable-response": "^7.1.0",
