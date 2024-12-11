@@ -6,6 +6,11 @@
 		getRouteStop,
 		getRouteStopQueryKey
 	} from '$lib/api/ctb';
+
+	import {
+		getRoute as getKMBRoute,
+		getRouteStop as getKMBRouteStop
+	} from '$lib/api/kmb';
 	import type { CompanyId, Direction } from '$lib/api/ctb/types';
 	import { createQuery } from '@tanstack/svelte-query';
 	import LoadingSpinner from '../../../../components/LoadingSpinner.svelte';
@@ -24,11 +29,14 @@
 			companyId,
 			route
 		}),
-		queryFn: () =>
-			getRoute({
-				companyId,
-				route
-			})
+		queryFn: () => {
+			return companyId === 'CTB'
+				? getRoute({
+						companyId,
+						route
+					})
+				: getKMBRoute({ direction, route, serviceType: '1' });
+		}
 	});
 
 	const routeStopQuery = $derived(
@@ -38,12 +46,19 @@
 				route,
 				direction
 			}),
-			queryFn: () =>
-				getRouteStop({
-					companyId,
-					route,
-					direction
-				})
+			queryFn: () => {
+				return companyId === 'CTB'
+					? getRouteStop({
+							companyId,
+							route,
+							direction
+						})
+					: getKMBRouteStop({
+							direction,
+							serviceType: '1',
+							route
+						});
+			}
 		})
 	);
 </script>
@@ -64,10 +79,7 @@
 		<p>錯誤發生</p>
 	{:else if $routeQuery.isSuccess}
 		<div class="w-full">
-			<RouteHeader
-				companyId={$routeQuery.data.data.co}
-				route={$routeQuery.data.data.route}
-			/>
+			<RouteHeader {companyId} route={$routeQuery.data.data.route} />
 
 			<div class="grid w-full auto-cols-fr grid-flow-col gap-2">
 				<Button
@@ -98,7 +110,7 @@
 			<ul class="no-scroll-bar h-full overflow-auto">
 				{#each $routeStopQuery.data.data as routeStop}
 					<li class="mb-4">
-						<Stop stopId={routeStop.stop} {companyId} {route} />
+						<Stop stopId={routeStop.stop} {companyId} {route} {direction} />
 					</li>
 				{/each}
 			</ul>

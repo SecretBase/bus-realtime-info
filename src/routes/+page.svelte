@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getRoutes, getRoutesQueryKey } from '$lib/api/ctb';
+	import { getRoutes as getKMBRoutes } from '$lib/api/kmb';
 	// @ts-ignore
 	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -18,12 +19,25 @@
 			})
 	});
 
+	const kmbQuery = createQuery({
+		staleTime: Infinity,
+		queryKey: ['kmb-routes'],
+		queryFn: () => getKMBRoutes()
+	});
+
 	let routeFilter = $state('');
 
 	const ctbRoutes = $derived($ctbQuery.data?.data ?? []);
+	const kmbRoutes = $derived(
+		$kmbQuery.data?.data
+			.filter((i) => i.bound === 'I')
+			.map((i) => ({ ...i, co: 'KMB' })) ?? []
+	);
 
 	const routes = $derived(
-		ctbRoutes.filter((route) => route.route.startsWith(routeFilter))
+		[...kmbRoutes, ...ctbRoutes].filter((route) =>
+			route.route.toLowerCase().includes(routeFilter.toLowerCase())
+		)
 	);
 
 	let routeListContainer: HTMLDivElement;

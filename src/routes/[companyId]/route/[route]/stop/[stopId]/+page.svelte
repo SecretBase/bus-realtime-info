@@ -4,6 +4,7 @@
 	import { zhHK } from 'date-fns/locale';
 	import { page } from '$app/stores';
 	import RouteHeader from '../../../../../../components/RouteHeader.svelte';
+	import { getStop as getKMBStop, getETA as getKmbETA } from '$lib/api/kmb';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getStop, getStopQueryKey } from '$lib/api/ctb';
 	import { getETA, getETAQueryKey } from '$lib/api/ctb';
@@ -27,16 +28,21 @@
 			companyId,
 			route
 		}),
-		queryFn: () =>
-			getRoute({
+		queryFn: () => {
+			return getRoute({
 				companyId,
 				route
-			})
+			});
+		}
 	});
 
 	const stopQuery = createQuery({
 		queryKey: getStopQueryKey({ stopId }),
-		queryFn: () => getStop({ stopId })
+		queryFn: () => {
+			return companyId === 'CTB'
+				? getStop({ stopId })
+				: getKMBStop({ stop: stopId });
+		}
 	});
 
 	const REFETCH_EVERY_TEN_SECONDS = 10000;
@@ -47,12 +53,15 @@
 			route
 		}),
 		refetchInterval: REFETCH_EVERY_TEN_SECONDS,
-		queryFn: () =>
-			getETA({
-				companyId,
-				stopId,
-				route
-			})
+		queryFn: () => {
+			return companyId === 'CTB'
+				? getETA({
+						companyId,
+						stopId,
+						route
+					})
+				: getKmbETA({ stop: stopId });
+		}
 	});
 
 	const stopEtas = $derived(sortEta($etaQuery.data?.data));

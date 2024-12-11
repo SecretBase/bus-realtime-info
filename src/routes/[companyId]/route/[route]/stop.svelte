@@ -6,7 +6,9 @@
 		getStopQueryKey
 	} from '$lib/api/ctb';
 
-	import type { CompanyId } from '$lib/api/ctb/types';
+	import { getStop as getKMBStop, getETA as getKmbETA } from '$lib/api/kmb';
+
+	import type { CompanyId, Direction } from '$lib/api/ctb/types';
 	import { createQuery } from '@tanstack/svelte-query';
 	import LoadingSkeleton from '../../../../components/LoadingSkeleton.svelte';
 	import {
@@ -19,18 +21,24 @@
 		stopId,
 		companyId,
 		route,
-		showRouteNumber = false
+		showRouteNumber = false,
+		direction
 	} = $props<{
 		stopId: string;
 		companyId: CompanyId;
 		route: string;
 		showRouteNumber?: boolean;
+		direction: Direction;
 	}>();
 
 	const stopQuery = $derived(
 		createQuery({
-			queryKey: getStopQueryKey({ stopId }),
-			queryFn: () => getStop({ stopId })
+			queryKey: [...getStopQueryKey({ stopId }), companyId],
+			queryFn: () => {
+				return companyId === 'CTB'
+					? getStop({ stopId })
+					: getKMBStop({ stop: stopId });
+			}
 		})
 	);
 
@@ -43,12 +51,15 @@
 				route
 			}),
 			refetchInterval: REFETCH_EVERY_TEN_SECONDS,
-			queryFn: () =>
-				getETA({
-					companyId,
-					stopId,
-					route
-				})
+			queryFn: () => {
+				return companyId === 'CTB'
+					? getETA({
+							companyId,
+							stopId,
+							route
+						})
+					: getKmbETA({ stop: stopId });
+			}
 		})
 	);
 
@@ -61,7 +72,7 @@
 	<p>錯誤發生</p>
 {:else if $etaQuery.isSuccess && $stopQuery.isSuccess}
 	<a
-		href={`/${companyId}/route/${route}/stop/${stopId}`}
+		href={`/${companyId}/route/${route}/stop/${stopId}${direction ? `?direction=${direction}` : ''}`}
 		style:--tag={`stop-item-${stopId}`}
 		class={`flex rounded-lg bg-white p-2 shadow-md hover:shadow-lg ${
 			showRouteNumber ? 'justify-between' : 'justify-start gap-4'
