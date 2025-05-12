@@ -46,18 +46,25 @@
 				route,
 				direction
 			}),
-			queryFn: () => {
-				return companyId === 'CTB'
-					? getRouteStop({
-							companyId,
-							route,
-							direction
-						})
-					: getKMBRouteStop({
-							direction,
-							serviceType: '1',
-							route
-						});
+			queryFn: async () => {
+				if (companyId === 'CTB') {
+					return getRouteStop({
+						companyId,
+						route,
+						direction
+					});
+				}
+
+				const response = await getKMBRouteStop({
+					direction,
+					serviceType: '1',
+					route
+				});
+
+				return {
+					...response,
+					data: response.data.reverse()
+				};
 			}
 		})
 	);

@@ -63,14 +63,20 @@
 			route
 		}),
 		refetchInterval: REFETCH_EVERY_TEN_SECONDS,
-		queryFn: () => {
-			return companyId === 'CTB'
-				? getETA({
-						companyId,
-						stopId,
-						route
-					})
-				: getKmbETA({ stop: stopId });
+		queryFn: async () => {
+			if (companyId === 'CTB') {
+				return getETA({
+					companyId,
+					stopId,
+					route
+				});
+			}
+
+			const response = await getKmbETA({ stop: stopId });
+			return {
+				...response,
+				data: response.data.filter((stop: any) => stop.route === route)
+			};
 		}
 	});
 
