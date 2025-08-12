@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { favorites } from '$lib/favoritesStore';
+  import { favorites } from '$lib/stores/favorites';
 
-	import Stop from '../[companyId]/route/[route]/stop.svelte';
+  import Stop from '$lib/components/StopListItem.svelte';
+  import type { Direction } from '$lib/api/ctb/types';
 
 	let filterString = $state('');
 
@@ -30,11 +31,11 @@
 		<ul class="no-scroll-bar h-full overflow-auto">
 			{#each stops as stop}
 				<li class="mb-4">
-					<Stop
+          <Stop
 						stopId={stop.stopId}
 						companyId={stop.companyId}
 						route={stop.routeId}
-						direction={stop.direction}
+            direction={stop.direction as Direction}
 						showRouteNumber
 					/>
 				</li>

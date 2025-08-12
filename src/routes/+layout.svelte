@@ -3,11 +3,11 @@
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { dev } from '$app/environment';
 
-	import Analytics from '../components/analytics.svelte';
+  import Analytics from '$lib/components/Analytics.svelte';
 
 	import type { PageData } from './$types';
-	import Footer from '../components/Footer.svelte';
-	import ViewTransition from './ViewTransition.svelte';
+  import Footer from '$lib/components/Footer.svelte';
+  import ViewTransition from './ViewTransition.svelte';
 
 	const { data, children } = $props<{ data: PageData }>();
 </script>

@@ -3,31 +3,34 @@
 	import { format, parseISO } from 'date-fns';
 	import { zhHK } from 'date-fns/locale';
 	import { page } from '$app/stores';
-	import RouteHeader from '../../../../../../components/RouteHeader.svelte';
+  import RouteHeader from '$lib/components/RouteHeader.svelte';
 	import { getStop as getKMBStop, getETA as getKmbETA } from '$lib/api/kmb';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { getStop, getStopQueryKey } from '$lib/api/ctb';
-	import { getETA, getETAQueryKey } from '$lib/api/ctb';
-	import { getRoute, getRoutesQueryKey } from '$lib/api/ctb';
-	import LoadingSkeleton from '../../../../../../components/LoadingSkeleton.svelte';
+  import { getStop, getStopQueryKey } from '$lib/api/ctb';
+  import { getETA, getETAQueryKey } from '$lib/api/ctb';
+  import { getRoute, getRoutesQueryKey } from '$lib/api/ctb';
+  import type { Route } from '$lib/api/ctb/types';
+  import type { APIResponse } from '$lib/api/common/types';
+  import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import {
 		getRoute as getKMBRoute,
 		getRouteStop as getKMBRouteStop
 	} from '$lib/api/kmb';
 
-	import {
-		getDifferentInMinutesByTimeStamp,
-		isArrivalTimeLessThenOneMinutes,
-		sortEta
-	} from '$lib/stopEta';
+  import {
+    getDifferentInMinutesByTimeStamp,
+    isArrivalTimeLessThenOneMinutes,
+    sortEta
+  } from '$lib/utils/eta';
+  import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
 
-	import { favorites, type Stop } from '$lib/favoritesStore';
+  import { favorites, type FavoriteStop as Stop } from '$lib/stores/favorites';
 
 	const companyId = $state($page.params.companyId as CompanyId);
 	const route = $state($page.params.route);
 	const stopId = $state($page.params.stopId);
 
-	const routeQuery = createQuery({
+  const routeQuery = createQuery<APIResponse<Route, 'Route' | 'RouteList'>>({
 		queryKey: getRoutesQueryKey({
 			companyId,
 			route
@@ -38,11 +41,11 @@
 						companyId,
 						route
 					})
-				: getKMBRoute({
-						direction: $page.url.searchParams.get('direction') as string,
+                : (getKMBRoute({
+                        direction: ($page.url.searchParams.get('direction') as 'inbound' | 'outbound') ?? 'inbound',
 						route,
 						serviceType: '1'
-					});
+                    }) as unknown as Promise<APIResponse<Route, 'Route' | 'RouteList'>>);
 		}
 	});
 
@@ -55,7 +58,6 @@
 		}
 	});
 
-	const REFETCH_EVERY_TEN_SECONDS = 10000;
 	const etaQuery = createQuery({
 		queryKey: getETAQueryKey({
 			companyId,
@@ -205,14 +207,14 @@
 								: ''}
 						</span>
 					</li>
-				{:else}
+        {:else}
 					<li class="p-4 bg-white shadow-md rounded">
 						<span
 							class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center text-gray-600"
 							>沒有班次</span
 						>
 					</li>
-				{/each}
+        {/each}
 			</ul>
 		{/if}
 	</div>

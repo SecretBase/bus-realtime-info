@@ -4,8 +4,8 @@
 	// @ts-ignore
 	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { createQuery } from '@tanstack/svelte-query';
-	import CompanyBadge from '../components/companyBadge.svelte';
-	import LoadingSkeleton from '../components/LoadingSkeleton.svelte';
+  import CompanyBadge from '$lib/components/CompanyBadge.svelte';
+  import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { type Route } from '$lib/api/ctb/types';

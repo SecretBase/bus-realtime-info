@@ -1,0 +1,3 @@
+export const REFETCH_EVERY_TEN_SECONDS = 10000;
+
+

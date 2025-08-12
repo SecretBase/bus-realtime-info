@@ -11,42 +11,45 @@
 		getRoute as getKMBRoute,
 		getRouteStop as getKMBRouteStop
 	} from '$lib/api/kmb';
-	import type { CompanyId, Direction } from '$lib/api/ctb/types';
+  import type { CompanyId, Direction, Route } from '$lib/api/ctb/types';
+  import type { APIResponse } from '$lib/api/common/types';
 	import { createQuery } from '@tanstack/svelte-query';
-	import LoadingSpinner from '../../../../components/LoadingSpinner.svelte';
-	import Button from '../../../../components/Button.svelte';
-	import Stop from './stop.svelte';
-	import LoadingSkeleton from '../../../../components/LoadingSkeleton.svelte';
-	import RouteHeader from '../../../../components/RouteHeader.svelte';
+  import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+  import Button from '$lib/components/Button.svelte';
+  import Stop from '$lib/components/StopListItem.svelte';
+  import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+  import RouteHeader from '$lib/components/RouteHeader.svelte';
 
 	let direction: Direction = $state('inbound');
 
 	const companyId = $state($page.params.companyId as CompanyId);
 	const route = $state($page.params.route);
 
-	const routeQuery = createQuery({
+  const routeQuery = createQuery<APIResponse<Route, 'RouteList' | 'Route'>>({
 		queryKey: getRoutesQueryKey({
 			companyId,
 			route
 		}),
-		queryFn: () => {
-			return companyId === 'CTB'
-				? getRoute({
-						companyId,
-						route
-					})
-				: getKMBRoute({ direction, route, serviceType: '1' });
-		}
+    queryFn: () => {
+      return companyId === 'CTB'
+        ? getRoute({
+            companyId,
+            route
+          })
+        : (getKMBRoute({ direction, route, serviceType: '1' }) as unknown as Promise<
+            APIResponse<Route, 'RouteList' | 'Route'>
+          >);
+    }
 	});
 
-	const routeStopQuery = $derived(
-		createQuery({
+  const routeStopQuery = $derived(
+    createQuery<APIResponse<any, any>>({
 			queryKey: getRouteStopQueryKey({
 				companyId,
 				route,
 				direction
 			}),
-			queryFn: async () => {
+      queryFn: async () => {
 				if (companyId === 'CTB') {
 					return getRouteStop({
 						companyId,
@@ -55,7 +58,7 @@
 					});
 				}
 
-				const response = await getKMBRouteStop({
+        const response = await getKMBRouteStop({
 					direction,
 					serviceType: '1',
 					route
@@ -64,7 +67,7 @@
 				return {
 					...response,
 					data: response.data.reverse()
-				};
+        } as APIResponse<any, any>;
 			}
 		})
 	);
