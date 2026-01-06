@@ -26,9 +26,13 @@
 
   import { favorites, type FavoriteStop as Stop } from '$lib/stores/favorites';
 
-	const companyId = $state($page.params.companyId as CompanyId);
-	const route = $state($page.params.route);
-	const stopId = $state($page.params.stopId);
+	const companyId = $state(($page.params.companyId ?? '') as CompanyId);
+	const route = $state($page.params.route ?? '');
+	const stopId = $state($page.params.stopId ?? '');
+	const direction = $derived(
+		($page.url.searchParams.get('direction') as 'inbound' | 'outbound') ?? 'inbound'
+	);
+
 
   const routeQuery = createQuery<APIResponse<Route, 'Route' | 'RouteList'>>({
 		queryKey: getRoutesQueryKey({
@@ -36,13 +40,14 @@
 			route
 		}),
 		queryFn: () => {
+			const currentDirection = ($page.url.searchParams.get('direction') as 'inbound' | 'outbound') ?? 'inbound';
 			return companyId === 'CTB'
 				? getRoute({
 						companyId,
 						route
 					})
                 : (getKMBRoute({
-                        direction: ($page.url.searchParams.get('direction') as 'inbound' | 'outbound') ?? 'inbound',
+                        direction: currentDirection,
 						route,
 						serviceType: '1'
                     }) as unknown as Promise<APIResponse<Route, 'Route' | 'RouteList'>>);
@@ -58,29 +63,50 @@
 		}
 	});
 
-	const etaQuery = createQuery({
-		queryKey: getETAQueryKey({
-			companyId,
-			stopId,
-			route
-		}),
-		refetchInterval: REFETCH_EVERY_TEN_SECONDS,
-		queryFn: async () => {
-			if (companyId === 'CTB') {
-				return getETA({
-					companyId,
-					stopId,
-					route
-				});
-			}
+	const etaQuery = $derived(
+		createQuery({
+			queryKey: [...getETAQueryKey({
+				companyId,
+				stopId,
+				route
+			}), direction],
+			refetchInterval: REFETCH_EVERY_TEN_SECONDS,
+			queryFn: async () => {
+				if (companyId === 'CTB') {
+					const response = await getETA({
+						companyId,
+						stopId,
+						route
+					});
+					// Filter by direction for CTB
+					const directionMap: Record<'inbound' | 'outbound', string> = {
+						inbound: 'I',
+						outbound: 'O'
+					};
+					return {
+						...response,
+						data: response.data?.filter(
+							(eta: any) => eta.dir === directionMap[direction]
+						) ?? []
+					};
+				}
 
-			const response = await getKmbETA({ stop: stopId });
-			return {
-				...response,
-				data: response.data.filter((stop: any) => stop.route === route)
-			};
-		}
-	});
+				const response = await getKmbETA({ stop: stopId });
+				// Filter by route and direction for KMB
+				const directionMap: Record<'inbound' | 'outbound', 'I' | 'O'> = {
+					inbound: 'I',
+					outbound: 'O'
+				};
+				return {
+					...response,
+					data: response.data.filter(
+						(eta: any) =>
+							eta.route === route && eta.dir === directionMap[direction]
+					)
+				};
+			}
+		})
+	);
 
 	const stopEtas = $derived(sortEta($etaQuery.data?.data));
 
@@ -115,7 +141,7 @@
 		{:else if $stopQuery.isSuccess}
 			<div class="flex gap-2">
 				<div
-					class="flex-1 rounded bg-vesuvius-400 p-4 text-center text-vesuvius-900 shadow-md"
+					class="flex-1 rounded-sm bg-vesuvius-400 p-4 text-center text-vesuvius-900 shadow-md"
 					style:--tag={`stop-item-${stopId}`}
 				>
 					<span style:--tag={`stop-title-${stopId}`}
@@ -124,7 +150,7 @@
 				</div>
 				<button
 					type="button"
-					class="w-14 rounded bg-vesuvius-400"
+					class="w-14 rounded-sm bg-vesuvius-400"
 					onclick={(event) => {
 						event.preventDefault();
 
@@ -145,7 +171,7 @@
 										stopId,
 										companyId,
 										routeId: route,
-										direction: $page.url.searchParams.get('direction') as string
+										direction: direction
 									})
 								};
 							});
@@ -201,14 +227,22 @@
 								</span>
 							{/if}
 						</span>
-						<span class="flex-1 text-end">
+						<span class="flex-1 text-center">
+							<div class="flex flex-col gap-1">
+								<span class="font-medium">{eta.dest_tc}</span>
+								{#if eta.rmk_tc}
+									<span class="text-sm text-gray-600">{eta.rmk_tc}</span>
+								{/if}
+							</div>
+						</span>
+						<span class="text-end">
 							{eta.eta
 								? format(new Date(eta.eta), 'HH:mm:ss', { locale: zhHK })
 								: ''}
 						</span>
 					</li>
         {:else}
-					<li class="p-4 bg-white shadow-md rounded">
+					<li class="p-4 bg-white shadow-md rounded-sm">
 						<span
 							class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center text-gray-600"
 							>沒有班次</span

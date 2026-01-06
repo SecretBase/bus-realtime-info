@@ -9,7 +9,7 @@
         <li class="flex items-center">
           <a
             href="/"
-            class={`flex flex-col items-center justify-center [&_svg]:hover:fill-vesuvius-300 ${
+            class={`flex flex-col items-center justify-center hover:[&_svg]:fill-vesuvius-300 ${
               $page.url.pathname === '/' ? '[&_svg]:fill-vesuvius-400' : ''
             }`}
           >
@@ -30,7 +30,7 @@
         <li class="flex items-center">
           <a
             href="/favorites"
-            class={`flex flex-col items-center justify-center [&_svg]:hover:fill-red-500 ${
+            class={`flex flex-col items-center justify-center hover:[&_svg]:fill-red-500 ${
               $page.url.pathname === '/favorites' ? '[&_svg]:fill-red-600' : ''
             }`}
           >

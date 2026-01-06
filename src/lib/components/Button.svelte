@@ -19,7 +19,7 @@
   const classnames = $derived(getButtonStyle(variant));
 
   function getButtonStyle(variant: ButtonVariant) {
-    const baseClass = 'rounded p-2';
+    const baseClass = 'rounded-sm p-2';
     let buttonClassnames = '';
 
     switch (variant) {

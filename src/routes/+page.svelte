@@ -1,14 +1,10 @@
 <script lang="ts">
 	import { getRoutes, getRoutesQueryKey } from '$lib/api/ctb';
 	import { getRoutes as getKMBRoutes } from '$lib/api/kmb';
-	// @ts-ignore
-	import VirtualList from '@sveltejs/svelte-virtual-list';
+	import CompanyBadge from '$lib/components/CompanyBadge.svelte';
+	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-  import CompanyBadge from '$lib/components/CompanyBadge.svelte';
-  import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
-	import { onDestroy, onMount } from 'svelte';
-	import { browser } from '$app/environment';
-	import { type Route } from '$lib/api/ctb/types';
+	import { createVirtualizer } from '@tanstack/svelte-virtual';
 
 	const ctbQuery = createQuery({
 		staleTime: Infinity,
@@ -40,25 +36,24 @@
 		)
 	);
 
-	let routeListContainer: HTMLDivElement;
-	let containerHeight = $state(0);
-	let resizeObserver: ResizeObserver;
-	onMount(() => {
-		if (!browser) return;
-
-		containerHeight = routeListContainer.clientHeight;
-
-		resizeObserver = new ResizeObserver((entries) => {
-			containerHeight = routeListContainer.clientHeight;
+	let scrollElement = $state<HTMLDivElement | null>(null);
+	let virtualizer = $derived.by(() => {
+		if (!scrollElement) return null;
+		return createVirtualizer<HTMLDivElement, Element>({
+			getScrollElement: () => scrollElement,
+			count: routes.length,
+			estimateSize: () => 56,
+			gap: 16,
+			overscan: 5
 		});
-
-		resizeObserver.observe(routeListContainer);
 	});
 
-	onDestroy(() => {
-		if (!browser) return;
-		resizeObserver?.disconnect();
-	});
+	const isLoading = $derived($ctbQuery.isLoading || $kmbQuery.isLoading);
+	const hasData = $derived(
+		($ctbQuery.data?.data && $ctbQuery.data.data.length > 0) ||
+		($kmbQuery.data?.data && $kmbQuery.data.data.length > 0)
+	);
+
 </script>
 
 <svelte:head>
@@ -74,16 +69,21 @@
 		bind:value={routeFilter}
 		class="min-w-[200px] rounded-xl border-b bg-vesuvius-700 p-4 text-center text-white placeholder:text-white"
 	/>
-	<div class="min-h-0" bind:this={routeListContainer}>
-		{#if $ctbQuery.isLoading}
+	<div
+		class="min-h-0 h-full overflow-y-auto no-scroll-bar"
+		bind:this={scrollElement}
+	>
+		{#if isLoading && !hasData}
 			<LoadingSkeleton />
-		{:else}
-			<VirtualList
-				items={routes}
-				itemHeight={56}
-				height={`${containerHeight}px`}
+		{:else if routes.length > 0 && $virtualizer}
+			<div
+				style="height: {$virtualizer.getTotalSize()}px; width: 100%; position: relative;"
 			>
-				{#snippet children({ item }: { item: Route })}
+				{#each $virtualizer.getVirtualItems() as virtualItem (virtualItem.key)}
+				{@const item = routes[virtualItem.index]}
+				<div
+					style="position: absolute; top: {virtualItem.start}px; left: 0; width: 100%; height: {virtualItem.size}px;"
+				>
 					<div
 						class="border-px mb-4 min-w-[200px] rounded-xl bg-white shadow-md hover:shadow-lg"
 						style:--tag={`header-${item.co}-${item.route}`}
@@ -93,15 +93,16 @@
 							href={`/${item.co}/route/${item.route}`}
 							data-sveltekit-preload-data="hover"
 						>
-							<CompanyBadge companyId={item.co} route={item.route} />
+							<CompanyBadge companyId={item.co as 'CTB' | 'KMB' | 'NWFB'} route={item.route} />
 							<span
 								class="flex-1 text-center"
 								style:--tag={`route-${item.route}`}>{item.route}</span
 							>
 						</a>
 					</div>
-				{/snippet}
-			</VirtualList>
+				</div>
+				{/each}
+			</div>
 		{/if}
 	</div>
 </div>

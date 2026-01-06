@@ -7,20 +7,20 @@
 		getRouteStopQueryKey
 	} from '$lib/api/ctb';
 
+	import type { APIResponse } from '$lib/api/common/types';
+	import type { CompanyId, Direction, Route } from '$lib/api/ctb/types';
 	import {
 		getRoute as getKMBRoute,
 		getRouteStop as getKMBRouteStop
 	} from '$lib/api/kmb';
-  import type { CompanyId, Direction, Route } from '$lib/api/ctb/types';
-  import type { APIResponse } from '$lib/api/common/types';
+	import Button from '$lib/components/Button.svelte';
+	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import RouteHeader from '$lib/components/RouteHeader.svelte';
+	import Stop from '$lib/components/StopListItem.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-  import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-  import Button from '$lib/components/Button.svelte';
-  import Stop from '$lib/components/StopListItem.svelte';
-  import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
-  import RouteHeader from '$lib/components/RouteHeader.svelte';
 
-	let direction: Direction = $state('inbound');
+	let direction: Direction = $state($page.url.searchParams.get('direction') as Direction ?? 'inbound');
 
 	const companyId = $state($page.params.companyId as CompanyId);
 	const route = $state($page.params.route);
@@ -66,7 +66,7 @@
 
 				return {
 					...response,
-					data: response.data.reverse()
+					data: response.data
         } as APIResponse<any, any>;
 			}
 		})
@@ -98,7 +98,7 @@
 					variant={direction === 'inbound' ? 'primary' : 'secondary'}
 					onclick={() => {
 						direction = 'inbound';
-					}}>往{$routeQuery.data.data.orig_tc}</Button
+					}}>往{companyId === 'CTB' ? $routeQuery.data.data.orig_tc : $routeQuery.data.data.dest_tc}</Button
 				>
 				<Button
 					type="button"
@@ -106,7 +106,7 @@
 					variant={direction === 'outbound' ? 'primary' : 'secondary'}
 					onclick={() => {
 						direction = 'outbound';
-					}}>往{$routeQuery.data.data.dest_tc}</Button
+					}}>往{companyId === 'CTB' ? $routeQuery.data.data.dest_tc : $routeQuery.data.data.orig_tc}</Button
 				>
 			</div>
 		</div>
