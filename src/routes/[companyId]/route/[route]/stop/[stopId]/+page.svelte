@@ -217,7 +217,7 @@
 										new Date(eta.eta).getTime()
 									)}分鐘
 								</span>
-							{:else}
+							{:else if eta.eta !== null}
 								<span
 									class="inline-block min-w-[76px] rounded-full bg-vesuvius-300 px-3 py-2 text-center"
 								>

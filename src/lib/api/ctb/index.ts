@@ -47,6 +47,7 @@ export const getETA = async ({ stopId, companyId, route }: GetETAParams) => {
 type GetRoutesParams = {
 	companyId: CompanyId;
 	route?: string;
+	direction?: Direction;
 };
 
 export const getRoutesQueryKey = (params: GetRoutesParams): QueryKey => [

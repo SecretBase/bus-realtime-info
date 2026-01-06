@@ -20,36 +20,45 @@
 	import Stop from '$lib/components/StopListItem.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 
-	let direction: Direction = $state($page.url.searchParams.get('direction') as Direction ?? 'inbound');
 
-	const companyId = $state($page.params.companyId as CompanyId);
-	const route = $state($page.params.route);
+	let direction: Direction = $state(
+		($page.url.searchParams.get('direction') as Direction) || 'inbound'
+	);
 
-  const routeQuery = createQuery<APIResponse<Route, 'RouteList' | 'Route'>>({
+	const companyId = $page.params.companyId as CompanyId;
+	const route = $page.params.route;
+
+	const routeQuery = $derived(createQuery<APIResponse<Route, 'RouteList' | 'Route'>>({
 		queryKey: getRoutesQueryKey({
 			companyId,
-			route
+			route,
+			direction: "inbound"
 		}),
-    queryFn: () => {
-      return companyId === 'CTB'
-        ? getRoute({
-            companyId,
-            route
-          })
-        : (getKMBRoute({ direction, route, serviceType: '1' }) as unknown as Promise<
-            APIResponse<Route, 'RouteList' | 'Route'>
-          >);
-    }
-	});
+		queryFn: () => {
+			return companyId === 'CTB'
+				? getRoute({
+						companyId,
+						route
+					})
+				: (getKMBRoute({
+						direction: "inbound",
+						route,
+						serviceType: '1'
+					}) as unknown as Promise<APIResponse<Route, 'RouteList' | 'Route'>>);
+		}
+	}));
 
-  const routeStopQuery = $derived(
-    createQuery<APIResponse<any, any>>({
+
+	$inspect($routeQuery.data?.data)
+
+	const routeStopQuery = $derived(
+		createQuery<APIResponse<any, any>>({
 			queryKey: getRouteStopQueryKey({
 				companyId,
 				route,
 				direction
 			}),
-      queryFn: async () => {
+			queryFn: async () => {
 				if (companyId === 'CTB') {
 					return getRouteStop({
 						companyId,
@@ -58,7 +67,7 @@
 					});
 				}
 
-        const response = await getKMBRouteStop({
+				const response = await getKMBRouteStop({
 					direction,
 					serviceType: '1',
 					route
@@ -67,9 +76,15 @@
 				return {
 					...response,
 					data: response.data
-        } as APIResponse<any, any>;
+				} as APIResponse<any, any>;
 			}
 		})
+	);
+
+	$inspect(
+		companyId === 'CTB'
+			? $routeQuery.data?.data.orig_tc
+			: $routeQuery.data?.data.dest_tc
 	);
 </script>
 
@@ -98,7 +113,10 @@
 					variant={direction === 'inbound' ? 'primary' : 'secondary'}
 					onclick={() => {
 						direction = 'inbound';
-					}}>往{companyId === 'CTB' ? $routeQuery.data.data.orig_tc : $routeQuery.data.data.dest_tc}</Button
+					}}
+					>往{companyId === 'CTB'
+						? $routeQuery.data.data.orig_tc
+						: $routeQuery.data.data.dest_tc}</Button
 				>
 				<Button
 					type="button"
@@ -106,7 +124,10 @@
 					variant={direction === 'outbound' ? 'primary' : 'secondary'}
 					onclick={() => {
 						direction = 'outbound';
-					}}>往{companyId === 'CTB' ? $routeQuery.data.data.dest_tc : $routeQuery.data.data.orig_tc}</Button
+					}}
+					>往{companyId === 'CTB'
+						? $routeQuery.data.data.dest_tc
+						: $routeQuery.data.data.orig_tc}</Button
 				>
 			</div>
 		</div>

@@ -88,7 +88,7 @@
       <ul>
         {#each stopEtas ?? [] as eta}
           <li>
-            {#if isArrivalTimeLessThenOneMinutes(eta.etaDate)}
+            {#if isArrivalTimeLessThenOneMinutes(eta.etaDate) && eta.eta !== null}
               <span
                 class="inline-block min-w-[76px] rounded-full bg-vesuvius-300 px-3 py-2 text-center"
               >
@@ -96,7 +96,7 @@
                   new Date(eta.eta).getTime()
                 )}分鐘
               </span>
-            {:else}
+            {:else if eta.eta !== null}
               <span
                 class="inline-block min-w-[76px] rounded-full bg-vesuvius-300 px-3 py-2 text-center"
               >
@@ -104,6 +104,11 @@
                   >即將到達</span
                 >
               </span>
+            {:else}
+              <span
+                class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center text-gray-600"
+                >沒有班次</span
+              >
             {/if}
           </li>
         {:else}
