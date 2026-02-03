@@ -27,10 +27,24 @@ const precache_list = [
 precacheAndRoute(precache_list);
 cleanupOutdatedCaches();
 
+// Cache CTB (Citybus) routes endpoints only (exclude ETA endpoints)
 registerRoute(
 	({ url }) =>
 		url.origin === 'https://rt.data.gov.hk' &&
-		url.pathname.startsWith('/v1.1/transport/citybus-nwfb/route/'),
+		url.pathname.startsWith('/v2/transport/citybus') &&
+		!url.pathname.includes('/eta'),
+	new StaleWhileRevalidate({
+		cacheName: 'api-cache',
+		plugins: [new CacheableResponsePlugin({ statuses: [200] })]
+	})
+);
+
+// Cache KMB routes endpoints only (exclude ETA endpoints)
+registerRoute(
+	({ url }) =>
+		url.origin === 'https://data.etabus.gov.hk' &&
+		url.pathname.startsWith('/v1/transport/kmb') &&
+		url.pathname.includes('/route'),
 	new StaleWhileRevalidate({
 		cacheName: 'api-cache',
 		plugins: [new CacheableResponsePlugin({ statuses: [200] })]
