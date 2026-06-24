@@ -152,6 +152,7 @@ The repo includes agent skills and rules under `.agents/`:
 | Path | Purpose |
 |------|---------|
 | `.agents/rules/ponytail.mdc` | Prefer simplest working solution; YAGNI; smallest correct diff |
+| `.agents/rules/no-cursor-coauthor.mdc` | Never add Cursor/AI as `Co-authored-by` on commits |
 | `.agents/rules/ponytail-review-gate.mdc` | Run ponytail-review after feature implementation |
 | `.agents/skills/interface-kit/` | UI implementation quality |
 | `.agents/skills/ponytail/` | Lazy senior dev workflow |

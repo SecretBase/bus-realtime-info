@@ -1,0 +1,9 @@
+---
+description: Never add Cursor as a git commit co-author.
+globs:
+alwaysApply: true
+---
+
+# No Cursor co-author on commits
+
+When creating git commits, do not add a `Co-authored-by` trailer for any AI tool unless the user explicitly asks.
