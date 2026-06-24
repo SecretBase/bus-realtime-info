@@ -12,6 +12,7 @@
   import type { Route } from '$lib/api/ctb/types';
   import type { APIResponse } from '$lib/api/common/types';
   import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+  import BusStopMap from '$lib/components/BusStopMap.svelte';
 	import {
 		getRoute as getKMBRoute,
 		getRouteStop as getKMBRouteStop
@@ -195,6 +196,14 @@
 					</span>
 				</button>
 			</div>
+			{#if Number($stopQuery.data.data.lat) !== 0 && Number($stopQuery.data.data.long) !== 0}
+				<h2 class="mt-4 mb-2 text-sm font-medium text-vesuvius-900">站點位置</h2>
+				<BusStopMap
+					lat={$stopQuery.data.data.lat}
+					lng={$stopQuery.data.data.long}
+					label={$stopQuery.data.data.name_tc}
+				/>
+			{/if}
 		{/if}
 	</div>
 	<div class="min-h-0 w-full">
