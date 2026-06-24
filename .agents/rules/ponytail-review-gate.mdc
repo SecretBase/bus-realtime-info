@@ -1,0 +1,34 @@
+---
+description: Run ponytail-review after implementing a feature or substantive code change.
+alwaysApply: true
+---
+
+# Ponytail review gate
+
+After you finish building a feature or making substantive code changes, run a **ponytail-review** before you report the task done.
+
+## When to run
+
+- You implemented a requested feature, bug fix, or refactor that touched source code.
+- You are about to summarize completion, open a PR, or ask "anything else?"
+
+Skip when:
+
+- The turn was Q&A, planning, or docs-only with no code edits.
+- You already ran ponytail-review on this same diff in this conversation.
+- The user said "stop ponytail-review" or "skip review".
+
+## How to run
+
+1. Read `.agents/skills/ponytail-review/SKILL.md`.
+2. Inspect `git diff` and `git diff --cached` (uncommitted + branch changes).
+3. Output findings in the skill's one-line format (`delete:`, `stdlib:`, `native:`, `yagni:`, `shrink:`).
+4. End with `net: -<N> lines possible.` or `Lean already. Ship.`
+5. **Review only** — list cuts, do not apply them unless the user asks.
+
+## After the review
+
+- If findings exist, mention the top cuts briefly in your completion summary.
+- Do not mark the feature "done" without either running the review or explicitly skipping it per user request.
+
+Manual invoke: `/review-ponytail` (see `.agents/skills/review-ponytail/SKILL.md`).

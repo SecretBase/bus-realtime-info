@@ -152,8 +152,12 @@ The repo includes agent skills and rules under `.agents/`:
 | Path | Purpose |
 |------|---------|
 | `.agents/rules/ponytail.mdc` | Prefer simplest working solution; YAGNI; smallest correct diff |
+| `.agents/rules/ponytail-review-gate.mdc` | Run ponytail-review after feature implementation |
 | `.agents/skills/interface-kit/` | UI implementation quality |
 | `.agents/skills/ponytail/` | Lazy senior dev workflow |
+| `.agents/skills/ponytail-review/` | Over-engineering review format (what to delete) |
+| `.agents/skills/review-ponytail/` | Manual `/review-ponytail` invoke |
+| `.cursor/hooks.json` | Auto-trigger ponytail-review after agent edits code |
 
 Follow ponytail principles: understand the flow before editing, fix shared functions once, question unnecessary complexity.
 

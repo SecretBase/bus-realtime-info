@@ -1,0 +1,21 @@
+{
+	"version": 1,
+	"hooks": {
+		"afterFileEdit": [
+			{
+				"command": "bun run .cursor/hooks/mark-edit.ts"
+			}
+		],
+		"stop": [
+			{
+				"command": "bun run .cursor/hooks/ponytail-review-stop.ts",
+				"loop_limit": 2
+			}
+		],
+		"sessionEnd": [
+			{
+				"command": "bun run .cursor/hooks/session-cleanup.ts"
+			}
+		]
+	}
+}
