@@ -1,11 +1,18 @@
 <script lang="ts">
-	import type { Map } from 'leaflet';
+	import type { Map, Marker } from 'leaflet';
+	import Button from '$lib/components/Button.svelte';
 
-	const { lat, lng, label = '' } = $props<{
+	const {
+		lat,
+		lng,
+		label = ''
+	} = $props<{
 		lat: number | string;
 		lng: number | string;
 		label?: string;
 	}>();
+
+	type LocationState = 'idle' | 'tracking' | 'denied' | 'unavailable';
 
 	const coordLat = $derived(Number(lat));
 	const coordLng = $derived(Number(lng));
@@ -17,26 +24,201 @@
 			coordLng !== 0
 	);
 
+	let locationState = $state<LocationState>('idle');
+
+	const geoSupported = $derived(
+		typeof navigator !== 'undefined' && 'geolocation' in navigator
+	);
+
+	const mapAriaLabel = $derived(
+		locationState === 'tracking'
+			? '巴士站與你的位置地圖'
+			: label
+				? `${label} 地圖`
+				: '巴士站地圖'
+	);
+
+	const locationErrorMessage = $derived(
+		locationState === 'denied'
+			? '無法取得位置，請檢查瀏覽器權限'
+			: locationState === 'unavailable'
+				? '無法取得位置，請稍後再試'
+				: ''
+	);
+
 	const osmUrl = $derived(
 		`https://www.openstreetmap.org/?mlat=${coordLat}&mlon=${coordLng}#map=18/${coordLat}/${coordLng}`
 	);
 
 	let mapContainer = $state<HTMLDivElement | undefined>();
 
+	let mapInstance: Map | undefined;
+	let userMarker: Marker | undefined;
+	let leafletModule: typeof import('leaflet') | undefined;
+	let watchId: number | null = null;
+	let currentHeading = 0;
+	let orientationHandler: ((event: DeviceOrientationEvent) => void) | null =
+		null;
+
+	function createUserIcon(L: typeof import('leaflet'), heading: number) {
+		return L.divIcon({
+			className: '',
+			html: `<div style="width:24px;height:24px;transform:rotate(${heading}deg);transform-origin:center center;">
+				<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+					<path d="M12 2 L20 20 L12 15 L4 20 Z" fill="#3b82f6" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round" />
+				</svg>
+			</div>`,
+			iconSize: [24, 24],
+			iconAnchor: [12, 12]
+		});
+	}
+
+	function resolveHeading(coords: GeolocationCoordinates) {
+		if (Number.isFinite(coords.heading) && coords.heading !== null) {
+			return coords.heading;
+		}
+		return currentHeading;
+	}
+
+	function updateMarkerHeading(heading: number) {
+		if (!userMarker || !leafletModule) return;
+		currentHeading = heading;
+		userMarker.setIcon(createUserIcon(leafletModule, heading));
+	}
+
+	function stopOrientationListener() {
+		if (orientationHandler) {
+			window.removeEventListener('deviceorientation', orientationHandler);
+			orientationHandler = null;
+		}
+	}
+
+	async function enableCompass() {
+		if (typeof window === 'undefined' || !('DeviceOrientationEvent' in window))
+			return;
+
+		const orientationEvent =
+			DeviceOrientationEvent as typeof DeviceOrientationEvent & {
+				requestPermission?: () => Promise<'granted' | 'denied'>;
+			};
+
+		if (typeof orientationEvent.requestPermission === 'function') {
+			try {
+				const state = await orientationEvent.requestPermission();
+				if (state !== 'granted') return;
+			} catch {
+				return;
+			}
+		}
+
+		stopOrientationListener();
+		orientationHandler = (event: DeviceOrientationEvent) => {
+			const iosHeading = (
+				event as DeviceOrientationEvent & { webkitCompassHeading?: number }
+			).webkitCompassHeading;
+
+			if (typeof iosHeading === 'number') {
+				updateMarkerHeading(iosHeading);
+			} else if (event.absolute && event.alpha !== null) {
+				updateMarkerHeading(360 - event.alpha);
+			}
+		};
+		window.addEventListener('deviceorientation', orientationHandler);
+	}
+
+	function clearWatch() {
+		if (watchId !== null) {
+			navigator.geolocation.clearWatch(watchId);
+			watchId = null;
+		}
+	}
+
+	function removeUserMarker() {
+		userMarker?.remove();
+		userMarker = undefined;
+	}
+
+	function updateUserPosition(
+		latitude: number,
+		longitude: number,
+		heading: number
+	) {
+		if (!mapInstance || !leafletModule) return;
+
+		const L = leafletModule;
+		currentHeading = heading;
+		const icon = createUserIcon(L, heading);
+
+		if (!userMarker) {
+			userMarker = L.marker([latitude, longitude], {
+				icon,
+				zIndexOffset: 1000
+			}).addTo(mapInstance);
+		} else {
+			userMarker.setLatLng([latitude, longitude]);
+			userMarker.setIcon(icon);
+		}
+
+		mapInstance.setView([latitude, longitude], mapInstance.getZoom());
+		locationState = 'tracking';
+	}
+
+	function onPositionError(error: GeolocationPositionError) {
+		clearWatch();
+		stopOrientationListener();
+		removeUserMarker();
+		mapInstance?.setView([coordLat, coordLng], 17);
+
+		if (error.code === error.PERMISSION_DENIED) {
+			locationState = 'denied';
+		} else {
+			locationState = 'unavailable';
+		}
+	}
+
+	function startTracking() {
+		if (!geoSupported) return;
+
+		clearWatch();
+		void enableCompass();
+		watchId = navigator.geolocation.watchPosition(
+			(position) => {
+				updateUserPosition(
+					position.coords.latitude,
+					position.coords.longitude,
+					resolveHeading(position.coords)
+				);
+			},
+			onPositionError,
+			{ enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+		);
+	}
+
+	function stopTracking() {
+		clearWatch();
+		stopOrientationListener();
+		currentHeading = 0;
+		removeUserMarker();
+		locationState = 'idle';
+		mapInstance?.setView([coordLat, coordLng], 17);
+	}
+
 	$effect(() => {
 		const container = mapContainer;
 		if (!hasValidCoords || !container) return;
 
 		let cancelled = false;
-		let map: Map | undefined;
 
 		(async () => {
 			const L = await import('leaflet');
+			leafletModule = L;
 
 			if (cancelled) return;
 
-			const iconUrl = (await import('leaflet/dist/images/marker-icon.png')).default;
-			const shadowUrl = (await import('leaflet/dist/images/marker-shadow.png')).default;
+			const iconUrl = (await import('leaflet/dist/images/marker-icon.png'))
+				.default;
+			const shadowUrl = (await import('leaflet/dist/images/marker-shadow.png'))
+				.default;
 
 			const defaultIcon = L.icon({
 				iconUrl,
@@ -49,7 +231,7 @@
 
 			if (cancelled) return;
 
-			map = L.map(container, {
+			const map = L.map(container, {
 				scrollWheelZoom: false
 			}).setView([coordLat, coordLng], 17);
 
@@ -64,29 +246,78 @@
 				marker.bindPopup(label);
 			}
 
-			requestAnimationFrame(() => map?.invalidateSize());
+			mapInstance = map;
+			requestAnimationFrame(() => map.invalidateSize());
 		})();
 
 		return () => {
 			cancelled = true;
-			map?.remove();
+			clearWatch();
+			stopOrientationListener();
+			removeUserMarker();
+			mapInstance?.remove();
+			mapInstance = undefined;
+			leafletModule = undefined;
+		};
+	});
+
+	$effect(() => {
+		return () => {
+			clearWatch();
+			stopOrientationListener();
 		};
 	});
 </script>
+
 {#if hasValidCoords}
 	<div class="grid gap-2">
 		<div
 			bind:this={mapContainer}
 			class="h-48 min-h-48 w-full overflow-hidden rounded-lg bg-gray-100 shadow-md"
 			role="img"
-			aria-label={label ? `${label} 地圖` : '巴士站地圖'}
+			aria-label={mapAriaLabel}
 		></div>
+
+		{#if geoSupported}
+			{#if locationState === 'tracking'}
+				<Button
+					variant="secondary"
+					class="w-full text-sm"
+					aria-label="停止定位"
+					onclick={stopTracking}
+				>
+					停止定位
+				</Button>
+			{:else if locationState === 'denied' || locationState === 'unavailable'}
+				<p class="text-center text-xs text-red-600" role="alert">
+					{locationErrorMessage}
+				</p>
+				<Button
+					variant="secondary"
+					class="w-full text-sm"
+					aria-label="重試定位"
+					onclick={startTracking}
+				>
+					重試定位
+				</Button>
+			{:else}
+				<Button
+					variant="secondary"
+					class="w-full text-sm"
+					aria-label="顯示目前位置於地圖上"
+					onclick={startTracking}
+				>
+					顯示我的位置
+				</Button>
+			{/if}
+		{/if}
+
 		<p class="text-center text-xs text-gray-600">位置僅供參考</p>
 		<a
 			href={osmUrl}
 			target="_blank"
 			rel="noopener noreferrer"
-			class="text-center text-sm text-vesuvius-900 underline"
+			class="text-vesuvius-900 text-center text-sm underline"
 		>
 			在 OpenStreetMap 開啟
 		</a>
