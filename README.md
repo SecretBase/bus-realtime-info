@@ -37,8 +37,7 @@ The application fetches real-time bus data from official Hong Kong government AP
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- pnpm (recommended) or npm
+- [Bun](https://bun.sh/) (v1.3 or higher)
 
 ### Installation
 
@@ -50,7 +49,7 @@ cd bus-realtime-info
 
 2. Install dependencies:
 ```bash
-pnpm install
+bun install
 ```
 
 ### Development
@@ -58,7 +57,7 @@ pnpm install
 Start the development server:
 
 ```bash
-pnpm run dev
+bun run dev
 ```
 
 The app will open automatically in your browser at `http://localhost:5173`.
@@ -68,13 +67,13 @@ The app will open automatically in your browser at `http://localhost:5173`.
 Build the production version:
 
 ```bash
-pnpm run build
+bun run build
 ```
 
 Preview the production build:
 
 ```bash
-pnpm run preview
+bun run preview
 ```
 
 ### Code Quality
@@ -82,19 +81,19 @@ pnpm run preview
 Check TypeScript types:
 
 ```bash
-pnpm run check
+bun run check
 ```
 
 Lint code:
 
 ```bash
-pnpm run lint
+bun run lint
 ```
 
 Format code:
 
 ```bash
-pnpm run format
+bun run format
 ```
 
 ## Project Structure
@@ -155,7 +154,7 @@ Build configuration is defined in `netlify.toml`:
 
 ```toml
 [build]
-  command = "pnpm run build"
+  command = "bun run build"
   publish = "build"
 ```
 
