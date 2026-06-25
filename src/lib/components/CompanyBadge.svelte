@@ -1,16 +1,19 @@
 <script lang="ts">
+	import type { OperatorId } from '$lib/api/ctb/types';
+	import { getCompanyName } from '$lib/utils/company';
+
 	const {
 		companyId,
 		class: className = '',
 		...rest
 	} = $props<
 		{
-			companyId: 'CTB' | 'KMB';
+			companyId: OperatorId;
 			class?: string;
-		} & Record<string, any>
+		} & Record<string, unknown>
 	>();
 
-	const displayName = $derived(companyId === 'KMB' ? '九巴' : '城巴');
+	const displayName = $derived(getCompanyName(companyId));
 
 	const colorClass = $derived(
 		companyId === 'KMB'

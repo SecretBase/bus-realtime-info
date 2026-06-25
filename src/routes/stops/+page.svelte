@@ -2,6 +2,9 @@
 	import { getStops } from '$lib/api/kmb';
 	import Button from '$lib/components/Button.svelte';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { localizeHref } from '$lib/paraglide/runtime';
+	import { getStopName } from '$lib/utils/localized';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const NEARBY_DISTANCE_OPTIONS = [100, 200, 400] as const;
@@ -10,7 +13,7 @@
 	let searchFilter = $state('');
 	let nearbyMaxDistance = $state<(typeof NEARBY_DISTANCE_OPTIONS)[number]>(200);
 	let nearbyStops = $state<
-		{ stop: string; name_tc: string; distanceMeters: number }[]
+		{ stop: string; name_tc: string; name_en: string; distanceMeters: number }[]
 	>([]);
 	let nearbyState = $state<
 		'idle' | 'loading' | 'denied' | 'unavailable' | 'ready'
@@ -31,6 +34,7 @@
 				if (!query) return false;
 				return (
 					stop.name_tc.includes(searchFilter.trim()) ||
+					stop.name_en.toLowerCase().includes(query) ||
 					stop.stop.toLowerCase().includes(query)
 				);
 			})
@@ -58,6 +62,7 @@
 					.map((stop) => ({
 						stop: stop.stop,
 						name_tc: stop.name_tc,
+						name_en: stop.name_en,
 						distanceMeters: Math.hypot(
 							(stop.lat - latitude) * 111_320,
 							(stop.long - longitude) * 85_000
@@ -76,7 +81,7 @@
 </script>
 
 <svelte:head>
-	<title>搜尋站點 | Bus ETA</title>
+	<title>{m.page_title_search_stops()}</title>
 </svelte:head>
 
 <div
@@ -90,7 +95,7 @@
 				variant={activeTab === 'search' ? 'primary' : 'secondary'}
 				onclick={() => {
 					activeTab = 'search';
-				}}>搜尋</Button
+				}}>{m.tab_search()}</Button
 			>
 			<Button
 				type="button"
@@ -99,14 +104,14 @@
 				onclick={() => {
 					activeTab = 'nearby';
 					if (nearbyState === 'idle') findNearbyStops();
-				}}>附近</Button
+				}}>{m.tab_nearby()}</Button
 			>
 		</div>
 
 		{#if activeTab === 'search'}
 			<input
 				type="text"
-				placeholder="輸入站名"
+				placeholder={m.stop_name_placeholder()}
 				bind:value={searchFilter}
 				class="bg-vesuvius-700 w-full rounded-xl border-b p-4 text-center text-white placeholder:text-white"
 			/>
@@ -119,7 +124,7 @@
 						variant={nearbyMaxDistance === distance ? 'primary' : 'secondary'}
 						onclick={() => {
 							nearbyMaxDistance = distance;
-						}}>{distance}米</Button
+						}}>{m.nearby_distance_meters({ distance })}</Button
 					>
 				{/each}
 			</div>
@@ -131,32 +136,33 @@
 			<LoadingSkeleton />
 		{:else if $stopsQuery.isError}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">無法載入站點，請稍後再試</p>
+				<p class="text-vesuvius-900">{m.stops_load_error()}</p>
 				<Button
 					type="button"
 					variant="primary"
 					class="mt-4 px-6 py-3"
-					onclick={() => $stopsQuery.refetch()}>重試</Button
+					onclick={() => $stopsQuery.refetch()}>{m.retry()}</Button
 				>
 			</div>
 		{:else if activeTab === 'search'}
 			{#if !searchFilter.trim()}
 				<div class="rounded-xl bg-white p-6 text-center shadow-md">
-					<p class="text-vesuvius-900">輸入站名開始搜尋</p>
+					<p class="text-vesuvius-900">{m.search_stops_hint()}</p>
 				</div>
 			{:else if searchResults.length === 0}
 				<div class="rounded-xl bg-white p-6 text-center shadow-md">
-					<p class="text-vesuvius-900">沒有符合的站點</p>
+					<p class="text-vesuvius-900">{m.no_matching_stops()}</p>
 				</div>
 			{:else}
 				<ul class="grid gap-3">
 					{#each searchResults as stop}
 						<li>
 							<a
-								href="/stops/{stop.stop}"
+								href={localizeHref(`/stops/${stop.stop}`)}
 								class="block rounded-xl bg-white p-4 shadow-md hover:shadow-lg"
 							>
-								<span class="text-vesuvius-900 font-medium">{stop.name_tc}</span>
+								<span class="text-vesuvius-900 font-medium">{getStopName(stop)}</span
+								>
 							</a>
 						</li>
 					{/each}
@@ -164,49 +170,53 @@
 			{/if}
 		{:else if !navigator?.geolocation}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">此裝置不支援定位</p>
+				<p class="text-vesuvius-900">{m.geo_not_supported()}</p>
 			</div>
 		{:else if nearbyState === 'loading'}
 			<LoadingSkeleton />
 		{:else if nearbyState === 'denied'}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">無法取得位置，請檢查瀏覽器權限</p>
+				<p class="text-vesuvius-900">{m.location_denied()}</p>
 				<Button
 					type="button"
 					variant="primary"
 					class="mt-4 px-6 py-3"
-					onclick={findNearbyStops}>重試</Button
+					onclick={findNearbyStops}>{m.retry()}</Button
 				>
 			</div>
 		{:else if nearbyState === 'unavailable'}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">無法取得位置，請稍後再試</p>
+				<p class="text-vesuvius-900">{m.location_unavailable()}</p>
 				<Button
 					type="button"
 					variant="primary"
 					class="mt-4 px-6 py-3"
-					onclick={findNearbyStops}>重試</Button
+					onclick={findNearbyStops}>{m.retry()}</Button
 				>
 			</div>
 		{:else if nearbyStops.length === 0}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">附近沒有站點</p>
+				<p class="text-vesuvius-900">{m.no_nearby_stops()}</p>
 			</div>
 		{:else if filteredNearbyStops.length === 0}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">{nearbyMaxDistance}米內沒有站點</p>
+				<p class="text-vesuvius-900">
+					{m.no_stops_within_distance({ distance: nearbyMaxDistance })}
+				</p>
 			</div>
 		{:else}
 			<ul class="grid gap-3">
 				{#each filteredNearbyStops as stop}
 					<li>
 						<a
-							href="/stops/{stop.stop}"
+							href={localizeHref(`/stops/${stop.stop}`)}
 							class="flex items-center justify-between rounded-xl bg-white p-4 shadow-md hover:shadow-lg"
 						>
-							<span class="text-vesuvius-900 font-medium">{stop.name_tc}</span>
+							<span class="text-vesuvius-900 font-medium">{getStopName(stop)}</span>
 							<span class="text-vesuvius-700 text-sm"
-								>{Math.round(stop.distanceMeters)} 米</span
+								>{m.distance_meters({
+									distance: Math.round(stop.distanceMeters)
+								})}</span
 							>
 						</a>
 					</li>

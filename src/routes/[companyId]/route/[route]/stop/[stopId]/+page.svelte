@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { OperatorId } from '$lib/api/ctb/types';
-	import { format, parseISO } from 'date-fns';
-	import { zhHK } from 'date-fns/locale';
+	import { format } from 'date-fns';
 	import { page } from '$app/stores';
 	import RouteHeader from '$lib/components/RouteHeader.svelte';
 	import { getStop as getKMBStop, getETA as getKmbETA } from '$lib/api/kmb';
@@ -19,11 +18,19 @@
 	} from '$lib/api/kmb';
 
 	import {
-		getDifferentInMinutesByTimeStamp,
+		formatEtaMinutes,
 		isArrivalMoreThanOneMinuteAway,
 		sortEta
 	} from '$lib/utils/eta';
+	import {
+		getDateFnsLocale,
+		getDestination,
+		getRemark,
+		getStopName
+	} from '$lib/utils/localized';
 	import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getCompanyName } from '$lib/utils/company';
 
 	import { favorites, type FavoriteStop as Stop } from '$lib/stores/favorites';
 
@@ -64,9 +71,7 @@
 	const stopQuery = createQuery({
 		queryKey: getStopQueryKey({ stopId }),
 		queryFn: () =>
-			companyId === 'CTB'
-				? getStop({ stopId })
-				: getKMBStop({ stop: stopId })
+			companyId === 'CTB' ? getStop({ stopId }) : getKMBStop({ stop: stopId })
 	});
 
 	const etaQuery = $derived(
@@ -118,10 +123,13 @@
 
 <svelte:head>
 	<title>
-		{$stopQuery?.data?.data.name_tc ?? ''} | {companyId === 'KMB'
-			? '九巴'
-			: '城巴'}
-		{$routeQuery?.data?.data.route ?? ''} | Bus ETA
+		{m.page_title_stop({
+			stop: $stopQuery?.data?.data
+				? getStopName($stopQuery.data.data)
+				: '',
+			company: getCompanyName(companyId),
+			route: $routeQuery?.data?.data.route ?? ''
+		})}
 	</title>
 </svelte:head>
 
@@ -133,7 +141,7 @@
 		{#if $stopQuery.isLoading}
 			<LoadingSkeleton skeletonHeightClass="h-14" />
 		{:else if $stopQuery.isError}
-			<p>錯誤發生</p>
+			<p>{m.error_occurred()}</p>
 		{:else if $stopQuery.isSuccess}
 			<div class="flex gap-2">
 				<div
@@ -141,7 +149,7 @@
 					style:--tag={`stop-item-${stopId}`}
 				>
 					<span style:--tag={`stop-title-${stopId}`}
-						>{$stopQuery?.data?.data.name_tc}</span
+						>{getStopName($stopQuery.data.data)}</span
 					>
 				</div>
 				<button
@@ -187,18 +195,18 @@
 						/>
 					</svg>
 					<span class="sr-only"
-						>{hasFavorites ? '從我的最愛中刪除' : '添加到我的最愛'}
+						>{hasFavorites ? m.remove_from_favorites() : m.add_to_favorites()}
 					</span>
 				</button>
 			</div>
 			{#if Number($stopQuery.data.data.lat) !== 0 && Number($stopQuery.data.data.long) !== 0}
 				<h2 class="text-vesuvius-900 mt-4 mb-2 text-sm font-medium">
-					站點位置
+					{m.stop_location()}
 				</h2>
 				<BusStopMap
 					lat={$stopQuery.data.data.lat}
 					lng={$stopQuery.data.data.long}
-					label={$stopQuery.data.data.name_tc}
+					label={getStopName($stopQuery.data.data)}
 				/>
 			{/if}
 		{/if}
@@ -207,7 +215,7 @@
 		{#if $etaQuery.isLoading}
 			<LoadingSkeleton skeletonHeightClass="h-14" />
 		{:else if $etaQuery.isError}
-			<p>錯誤發生</p>
+			<p>{m.error_occurred()}</p>
 		{:else if $etaQuery.isSuccess}
 			<ul class="grid gap-4">
 				{#each stopEtas ?? [] as eta}
@@ -219,31 +227,31 @@
 								<span
 									class="bg-vesuvius-300 inline-block min-w-[76px] rounded-full px-3 py-2 text-center"
 								>
-									{getDifferentInMinutesByTimeStamp(
-										new Date(eta.eta).getTime()
-									)}分鐘
+									{formatEtaMinutes(new Date(eta.eta).getTime())}
 								</span>
 							{:else if eta.eta !== null}
 								<span
 									class="bg-vesuvius-300 inline-block min-w-[76px] rounded-full px-3 py-2 text-center"
 								>
 									<span class="animate-pulse font-bold text-red-600"
-										>即將到達</span
+										>{m.arriving_soon()}</span
 									>
 								</span>
 							{/if}
 						</span>
 						<span class="flex-1 text-center">
 							<div class="flex flex-col gap-1">
-								<span class="font-medium">{eta.dest_tc}</span>
-								{#if eta.rmk_tc}
-									<span class="text-sm text-gray-600">{eta.rmk_tc}</span>
+								<span class="font-medium">{getDestination(eta)}</span>
+								{#if getRemark(eta)}
+									<span class="text-sm text-gray-600">{getRemark(eta)}</span>
 								{/if}
 							</div>
 						</span>
 						<span class="text-end">
 							{eta.eta
-								? format(new Date(eta.eta), 'HH:mm:ss', { locale: zhHK })
+								? format(new Date(eta.eta), 'HH:mm:ss', {
+										locale: getDateFnsLocale()
+									})
 								: ''}
 						</span>
 					</li>
@@ -251,7 +259,7 @@
 					<li class="p-4 bg-white shadow-md rounded-sm">
 						<span
 							class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center text-gray-600"
-							>沒有班次</span
+							>{m.no_service()}</span
 						>
 					</li>
 				{/each}

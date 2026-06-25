@@ -19,6 +19,9 @@
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import RouteHeader from '$lib/components/RouteHeader.svelte';
 	import Stop from '$lib/components/StopListItem.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getCompanyName } from '$lib/utils/company';
+	import { getDestination, getOrigin } from '$lib/utils/localized';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const direction = $derived(
@@ -51,9 +54,7 @@
 							direction,
 							route,
 							serviceType: '1'
-						}) as unknown as Promise<
-							APIResponse<Route, 'RouteList' | 'Route'>
-						>)
+						}) as unknown as Promise<APIResponse<Route, 'RouteList' | 'Route'>>)
 		})
 	);
 
@@ -90,8 +91,10 @@
 
 <svelte:head>
 	<title>
-		{companyId === 'KMB' ? '九巴' : '城巴'}
-		{$routeQuery?.data?.data.route} | Bus ETA
+		{m.page_title_route({
+			company: getCompanyName(companyId),
+			route: $routeQuery?.data?.data.route ?? ''
+		})}
 	</title>
 </svelte:head>
 
@@ -101,7 +104,7 @@
 	{#if $routeQuery.isLoading}
 		<LoadingSpinner />
 	{:else if $routeQuery.isError}
-		<p>錯誤發生</p>
+		<p>{m.error_occurred()}</p>
 	{:else if $routeQuery.isSuccess}
 		<div class="w-full">
 			<RouteHeader
@@ -116,18 +119,24 @@
 					class="px-6 py-4"
 					variant={direction === 'inbound' ? 'primary' : 'secondary'}
 					onclick={() => setDirection('inbound')}
-					>往{companyId === 'CTB'
-						? $routeQuery.data.data.orig_tc
-						: $routeQuery.data.data.dest_tc}</Button
+					>{m.direction_to({
+						destination:
+							companyId === 'CTB'
+								? getOrigin($routeQuery.data.data)
+								: getDestination($routeQuery.data.data)
+					})}</Button
 				>
 				<Button
 					type="button"
 					class="px-6 py-4"
 					variant={direction === 'outbound' ? 'primary' : 'secondary'}
 					onclick={() => setDirection('outbound')}
-					>往{companyId === 'CTB'
-						? $routeQuery.data.data.dest_tc
-						: $routeQuery.data.data.orig_tc}</Button
+					>{m.direction_to({
+						destination:
+							companyId === 'CTB'
+								? getDestination($routeQuery.data.data)
+								: getOrigin($routeQuery.data.data)
+					})}</Button
 				>
 			</div>
 		</div>
@@ -136,7 +145,7 @@
 		{#if $routeStopQuery.isLoading}
 			<LoadingSkeleton skeletonHeightClass="h-14" />
 		{:else if $routeStopQuery.isError}
-			<p>錯誤發生</p>
+			<p>{m.error_occurred()}</p>
 		{:else if $routeStopQuery.isSuccess}
 			<ul class="no-scroll-bar h-full overflow-auto">
 				{#each $routeStopQuery.data.data as routeStop}

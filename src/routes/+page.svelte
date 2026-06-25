@@ -6,6 +6,9 @@
 	import CompanyBadge from '$lib/components/CompanyBadge.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { localizeHref } from '$lib/paraglide/runtime';
+	import { getDestination, getOrigin } from '$lib/utils/localized';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { createVirtualizer } from '@tanstack/svelte-virtual';
 
@@ -23,16 +26,16 @@
 			return {
 				co: 'KMB',
 				route: route.route,
-				inboundDest: route.dest_tc,
-				outboundDest: route.orig_tc
+				inboundDest: getDestination(route),
+				outboundDest: getOrigin(route)
 			};
 		}
 
 		return {
 			co: route.co,
 			route: route.route,
-			inboundDest: route.orig_tc,
-			outboundDest: route.dest_tc
+			inboundDest: getOrigin(route),
+			outboundDest: getDestination(route)
 		};
 	}
 
@@ -61,16 +64,14 @@
 	);
 
 	const routes = $derived(
-		[...kmbRoutes, ...ctbRoutes]
-			.map(toRouteListItem)
-			.filter((route) => {
-				const query = routeFilter.toLowerCase();
-				return (
-					route.route.toLowerCase().includes(query) ||
-					route.inboundDest.toLowerCase().includes(query) ||
-					route.outboundDest.toLowerCase().includes(query)
-				);
-			})
+		[...kmbRoutes, ...ctbRoutes].map(toRouteListItem).filter((route) => {
+			const query = routeFilter.toLowerCase();
+			return (
+				route.route.toLowerCase().includes(query) ||
+				route.inboundDest.toLowerCase().includes(query) ||
+				route.outboundDest.toLowerCase().includes(query)
+			);
+		})
 	);
 
 	let scrollElement = $state<HTMLDivElement | null>(null);
@@ -96,11 +97,10 @@
 		if ($ctbQuery.isError) $ctbQuery.refetch();
 		if ($kmbQuery.isError) $kmbQuery.refetch();
 	}
-
 </script>
 
 <svelte:head>
-	<title>Bus ETA</title>
+	<title>{m.page_title_bus_eta()}</title>
 </svelte:head>
 
 <div
@@ -108,7 +108,7 @@
 >
 	<input
 		type="text"
-		placeholder="輸入路線或目的地"
+		placeholder={m.route_filter_placeholder_home()}
 		bind:value={routeFilter}
 		class="bg-vesuvius-700 min-w-[200px] rounded-xl border-b p-4 text-center text-white placeholder:text-white"
 	/>
@@ -120,17 +120,17 @@
 			<LoadingSkeleton />
 		{:else if hasError}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">無法載入路線，請稍後再試</p>
+				<p class="text-vesuvius-900">{m.routes_load_error()}</p>
 				<Button
 					type="button"
 					variant="primary"
 					class="mt-4 px-6 py-3"
-					onclick={retry}>重試</Button
+					onclick={retry}>{m.retry()}</Button
 				>
 			</div>
 		{:else if routes.length === 0}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">沒有符合的路線</p>
+				<p class="text-vesuvius-900">{m.no_matching_routes()}</p>
 			</div>
 		{:else if $virtualizer}
 			<div
@@ -147,7 +147,7 @@
 						>
 							<a
 								class="flex items-center gap-3 p-4"
-								href={`/${item.co}/route/${item.route}`}
+								href={localizeHref(`/${item.co}/route/${item.route}`)}
 								data-sveltekit-preload-data="hover"
 							>
 								<CompanyBadge companyId={item.co as OperatorId} />
@@ -159,7 +159,10 @@
 										{item.route}
 									</div>
 									<div class="text-vesuvius-700 truncate text-sm">
-										往 {item.inboundDest} ↔ {item.outboundDest}
+										{m.route_direction_both({
+											inbound: item.inboundDest,
+											outbound: item.outboundDest
+										})}
 									</div>
 								</div>
 							</a>

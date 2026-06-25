@@ -10,11 +10,14 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import CompanyBadge from '$lib/components/CompanyBadge.svelte';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { localizeHref } from '$lib/paraglide/runtime';
 	import {
-		getDifferentInMinutesByTimeStamp,
+		formatEtaMinutes,
 		isArrivalMoreThanOneMinuteAway,
 		sortEta
 	} from '$lib/utils/eta';
+	import { getStopName } from '$lib/utils/localized';
 	import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
 
 	const {
@@ -82,7 +85,9 @@
 
 	const stopEtas = $derived(sortEta($etaQuery?.data?.data)?.slice(0, maxEtas));
 	const stopHref = $derived(
-		`/${companyId}/route/${route}/stop/${stopId}${direction ? `?direction=${direction}` : ''}`
+		localizeHref(
+			`/${companyId}/route/${route}/stop/${stopId}${direction ? `?direction=${direction}` : ''}`
+		)
 	);
 </script>
 
@@ -90,7 +95,7 @@
 	<LoadingSkeleton numberOfSkeletonBar={2} />
 {:else if $etaQuery.isError || $stopQuery.isError}
 	<div class="rounded-xl bg-white p-4 shadow-md">
-		<p class="text-vesuvius-900 text-sm">無法載入資料</p>
+		<p class="text-vesuvius-900 text-sm">{m.load_data_error()}</p>
 	</div>
 {:else if $etaQuery.isSuccess && $stopQuery.isSuccess}
 	<article
@@ -111,18 +116,20 @@
 					>
 						{route}
 					</span>
-				</div>
-				<p
+
+					<p
 					class="text-vesuvius-700 truncate text-sm"
 					style:--tag={`stop-title-${stopId}`}
 				>
-					{$stopQuery.data.data.name_tc}
+					{getStopName($stopQuery.data.data)}
 				</p>
+				</div>
+				
 			</a>
 			<button
 				type="button"
 				class="text-vesuvius-500 hover:bg-vesuvius-100 hover:text-vesuvius-700 -mt-1 -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors"
-				aria-label="移除收藏"
+				aria-label={m.remove_favorite_aria()}
 				onclick={onRemove}
 			>
 				<svg
@@ -149,26 +156,28 @@
 					<span
 						class="bg-vesuvius-100 text-vesuvius-900 inline-block min-w-[4.5rem] rounded-full px-3 py-1.5 text-center text-sm font-medium tabular-nums"
 					>
-						{getDifferentInMinutesByTimeStamp(new Date(eta.eta).getTime())}分鐘
+						{formatEtaMinutes(new Date(eta.eta).getTime())}
 					</span>
 				{:else if eta.eta !== null}
 					<span
 						class="bg-vesuvius-100 inline-block min-w-[4.5rem] rounded-full px-3 py-1.5 text-center text-sm font-medium"
 					>
-						<span class="animate-pulse font-bold text-red-600">即將到達</span>
+						<span class="animate-pulse font-bold text-red-600"
+							>{m.arriving_soon()}</span
+						>
 					</span>
 				{:else}
 					<span
 						class="bg-vesuvius-50 text-vesuvius-600 inline-block min-w-[4.5rem] rounded-full px-3 py-1.5 text-center text-sm"
 					>
-						沒有班次
+						{m.no_service()}
 					</span>
 				{/if}
 			{:else}
 				<span
 					class="bg-vesuvius-50 text-vesuvius-600 inline-block min-w-[4.5rem] rounded-full px-3 py-1.5 text-center text-sm"
 				>
-					沒有班次
+					{m.no_service()}
 				</span>
 			{/each}
 		</a>
