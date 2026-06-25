@@ -1,108 +1,105 @@
 <script lang="ts">
-	import type { CompanyId } from '$lib/api/ctb/types';
+	import type { OperatorId } from '$lib/api/ctb/types';
 	import { format, parseISO } from 'date-fns';
 	import { zhHK } from 'date-fns/locale';
 	import { page } from '$app/stores';
-  import RouteHeader from '$lib/components/RouteHeader.svelte';
+	import RouteHeader from '$lib/components/RouteHeader.svelte';
 	import { getStop as getKMBStop, getETA as getKmbETA } from '$lib/api/kmb';
 	import { createQuery } from '@tanstack/svelte-query';
-  import { getStop, getStopQueryKey } from '$lib/api/ctb';
-  import { getETA, getETAQueryKey } from '$lib/api/ctb';
-  import { getRoute, getRoutesQueryKey } from '$lib/api/ctb';
-  import type { Route } from '$lib/api/ctb/types';
-  import type { APIResponse } from '$lib/api/common/types';
-  import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
-  import BusStopMap from '$lib/components/BusStopMap.svelte';
+	import { getStop, getStopQueryKey } from '$lib/api/ctb';
+	import { getETA, getETAQueryKey } from '$lib/api/ctb';
+	import { getRoute, getRoutesQueryKey } from '$lib/api/ctb';
+	import type { Route } from '$lib/api/ctb/types';
+	import type { APIResponse } from '$lib/api/common/types';
+	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+	import BusStopMap from '$lib/components/BusStopMap.svelte';
 	import {
 		getRoute as getKMBRoute,
 		getRouteStop as getKMBRouteStop
 	} from '$lib/api/kmb';
 
-  import {
-    getDifferentInMinutesByTimeStamp,
-    isArrivalTimeLessThenOneMinutes,
-    sortEta
-  } from '$lib/utils/eta';
-  import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
+	import {
+		getDifferentInMinutesByTimeStamp,
+		isArrivalMoreThanOneMinuteAway,
+		sortEta
+	} from '$lib/utils/eta';
+	import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
 
-  import { favorites, type FavoriteStop as Stop } from '$lib/stores/favorites';
+	import { favorites, type FavoriteStop as Stop } from '$lib/stores/favorites';
 
-	const companyId = $state(($page.params.companyId ?? '') as CompanyId);
+	const companyId = $state(($page.params.companyId ?? '') as OperatorId);
 	const route = $state($page.params.route ?? '');
 	const stopId = $state($page.params.stopId ?? '');
 	const direction = $derived(
-		($page.url.searchParams.get('direction') as 'inbound' | 'outbound') ?? 'inbound'
+		($page.url.searchParams.get('direction') as 'inbound' | 'outbound') ??
+			'inbound'
 	);
 
-
-  const routeQuery = createQuery<APIResponse<Route, 'Route' | 'RouteList'>>({
-		queryKey: getRoutesQueryKey({
-			companyId,
-			route
-		}),
-		queryFn: () => {
-			const currentDirection = ($page.url.searchParams.get('direction') as 'inbound' | 'outbound') ?? 'inbound';
-			return companyId === 'CTB'
-				? getRoute({
-						companyId,
-						route
-					})
-                : (getKMBRoute({
-                        direction: currentDirection,
-						route,
-						serviceType: '1'
-                    }) as unknown as Promise<APIResponse<Route, 'Route' | 'RouteList'>>);
-		}
-	});
+	const routeQuery = $derived(
+		createQuery<APIResponse<Route, 'Route' | 'RouteList'>>({
+			queryKey: getRoutesQueryKey({
+				companyId: 'CTB',
+				route
+			}),
+			queryFn: () => {
+				const currentDirection =
+					($page.url.searchParams.get('direction') as 'inbound' | 'outbound') ??
+					'inbound';
+				return companyId === 'CTB'
+					? getRoute({
+							companyId: 'CTB',
+							route
+						})
+					: (getKMBRoute({
+							direction: currentDirection,
+							route,
+							serviceType: '1'
+						}) as unknown as Promise<
+							APIResponse<Route, 'Route' | 'RouteList'>
+						>);
+			}
+		})
+	);
 
 	const stopQuery = createQuery({
 		queryKey: getStopQueryKey({ stopId }),
-		queryFn: () => {
-			return companyId === 'CTB'
+		queryFn: () =>
+			companyId === 'CTB'
 				? getStop({ stopId })
-				: getKMBStop({ stop: stopId });
-		}
+				: getKMBStop({ stop: stopId })
 	});
 
 	const etaQuery = $derived(
 		createQuery({
-			queryKey: [...getETAQueryKey({
-				companyId,
-				stopId,
-				route
-			}), direction],
+			queryKey: [
+				...getETAQueryKey({
+					companyId,
+					stopId,
+					route
+				}),
+				direction
+			],
 			refetchInterval: REFETCH_EVERY_TEN_SECONDS,
 			queryFn: async () => {
+				const dir = direction === 'inbound' ? 'I' : 'O';
 				if (companyId === 'CTB') {
 					const response = await getETA({
 						companyId,
 						stopId,
 						route
 					});
-					// Filter by direction for CTB
-					const directionMap: Record<'inbound' | 'outbound', string> = {
-						inbound: 'I',
-						outbound: 'O'
-					};
 					return {
 						...response,
-						data: response.data?.filter(
-							(eta: any) => eta.dir === directionMap[direction]
-						) ?? []
+						data: response.data?.filter((eta) => eta.dir === dir) ?? []
 					};
 				}
 
 				const response = await getKmbETA({ stop: stopId });
-				// Filter by route and direction for KMB
-				const directionMap: Record<'inbound' | 'outbound', 'I' | 'O'> = {
-					inbound: 'I',
-					outbound: 'O'
-				};
 				return {
 					...response,
 					data: response.data.filter(
-						(eta: any) =>
-							eta.route === route && eta.dir === directionMap[direction]
+						(eta: { route: string; dir: string }) =>
+							eta.route === route && eta.dir === dir
 					)
 				};
 			}
@@ -121,11 +118,9 @@
 
 <svelte:head>
 	<title>
-		{$stopQuery?.data?.data.name_tc ?? ''} | {companyId === 'CTB'
-			? '城巴'
-			: companyId === 'NWFB'
-				? '新巴'
-				: ''}
+		{$stopQuery?.data?.data.name_tc ?? ''} | {companyId === 'KMB'
+			? '九巴'
+			: '城巴'}
 		{$routeQuery?.data?.data.route ?? ''} | Bus ETA
 	</title>
 </svelte:head>
@@ -133,7 +128,7 @@
 <div
 	class="routes-filter-grid grid h-full w-full max-w-md justify-center gap-4 px-4 py-4"
 >
-	<div class="min-w-xs w-full">
+	<div class="w-full min-w-xs">
 		<RouteHeader {companyId} {route} />
 		{#if $stopQuery.isLoading}
 			<LoadingSkeleton skeletonHeightClass="h-14" />
@@ -142,7 +137,7 @@
 		{:else if $stopQuery.isSuccess}
 			<div class="flex gap-2">
 				<div
-					class="flex-1 rounded-sm bg-vesuvius-400 p-4 text-center text-vesuvius-900 shadow-md"
+					class="bg-vesuvius-400 text-vesuvius-900 flex-1 rounded-sm p-4 text-center shadow-md"
 					style:--tag={`stop-item-${stopId}`}
 				>
 					<span style:--tag={`stop-title-${stopId}`}
@@ -151,7 +146,7 @@
 				</div>
 				<button
 					type="button"
-					class="w-14 rounded-sm bg-vesuvius-400"
+					class="bg-vesuvius-400 w-14 rounded-sm"
 					onclick={(event) => {
 						event.preventDefault();
 
@@ -197,7 +192,9 @@
 				</button>
 			</div>
 			{#if Number($stopQuery.data.data.lat) !== 0 && Number($stopQuery.data.data.long) !== 0}
-				<h2 class="mt-4 mb-2 text-sm font-medium text-vesuvius-900">站點位置</h2>
+				<h2 class="text-vesuvius-900 mt-4 mb-2 text-sm font-medium">
+					站點位置
+				</h2>
 				<BusStopMap
 					lat={$stopQuery.data.data.lat}
 					lng={$stopQuery.data.data.long}
@@ -218,9 +215,9 @@
 						class="flex items-center justify-between gap-4 rounded-lg bg-white p-2 shadow-md"
 					>
 						<span>
-							{#if isArrivalTimeLessThenOneMinutes(eta.etaDate)}
+							{#if isArrivalMoreThanOneMinuteAway(eta.etaDate)}
 								<span
-									class="inline-block min-w-[76px] rounded-full bg-vesuvius-300 px-3 py-2 text-center"
+									class="bg-vesuvius-300 inline-block min-w-[76px] rounded-full px-3 py-2 text-center"
 								>
 									{getDifferentInMinutesByTimeStamp(
 										new Date(eta.eta).getTime()
@@ -228,7 +225,7 @@
 								</span>
 							{:else if eta.eta !== null}
 								<span
-									class="inline-block min-w-[76px] rounded-full bg-vesuvius-300 px-3 py-2 text-center"
+									class="bg-vesuvius-300 inline-block min-w-[76px] rounded-full px-3 py-2 text-center"
 								>
 									<span class="animate-pulse font-bold text-red-600"
 										>即將到達</span
@@ -250,14 +247,14 @@
 								: ''}
 						</span>
 					</li>
-        {:else}
+				{:else}
 					<li class="p-4 bg-white shadow-md rounded-sm">
 						<span
 							class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center text-gray-600"
 							>沒有班次</span
 						>
 					</li>
-        {/each}
+				{/each}
 			</ul>
 		{/if}
 	</div>

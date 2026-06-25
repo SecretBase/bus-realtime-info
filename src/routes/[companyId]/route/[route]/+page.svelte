@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import {
 		getRoute,
@@ -8,7 +9,7 @@
 	} from '$lib/api/ctb';
 
 	import type { APIResponse } from '$lib/api/common/types';
-	import type { CompanyId, Direction, Route } from '$lib/api/ctb/types';
+	import type { Direction, OperatorId, Route } from '$lib/api/ctb/types';
 	import {
 		getRoute as getKMBRoute,
 		getRouteStop as getKMBRouteStop
@@ -20,48 +21,53 @@
 	import Stop from '$lib/components/StopListItem.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 
-
-	let direction: Direction = $state(
+	const direction = $derived(
 		($page.url.searchParams.get('direction') as Direction) || 'inbound'
 	);
 
-	const companyId = $page.params.companyId as CompanyId;
-	const route = $page.params.route;
+	const companyId = $page.params.companyId as OperatorId;
+	const route = $derived($page.params.route ?? '');
 
-	const routeQuery = $derived(createQuery<APIResponse<Route, 'RouteList' | 'Route'>>({
-		queryKey: getRoutesQueryKey({
-			companyId,
-			route,
-			direction: "inbound"
-		}),
-		queryFn: () => {
-			return companyId === 'CTB'
-				? getRoute({
-						companyId,
-						route
-					})
-				: (getKMBRoute({
-						direction: "inbound",
-						route,
-						serviceType: '1'
-					}) as unknown as Promise<APIResponse<Route, 'RouteList' | 'Route'>>);
-		}
-	}));
+	function setDirection(newDirection: Direction) {
+		const url = new URL($page.url);
+		url.searchParams.set('direction', newDirection);
+		goto(`${url.pathname}?${url.searchParams.toString()}`, {
+			replaceState: true,
+			keepFocus: true
+		});
+	}
 
-
-	$inspect($routeQuery.data?.data)
+	const routeQuery = $derived(
+		createQuery<APIResponse<Route, 'RouteList' | 'Route'>>({
+			queryKey: getRoutesQueryKey({
+				companyId: 'CTB',
+				route,
+				direction
+			}),
+			queryFn: () =>
+				companyId === 'CTB'
+					? getRoute({ companyId: 'CTB', route })
+					: (getKMBRoute({
+							direction,
+							route,
+							serviceType: '1'
+						}) as unknown as Promise<
+							APIResponse<Route, 'RouteList' | 'Route'>
+						>)
+		})
+	);
 
 	const routeStopQuery = $derived(
 		createQuery<APIResponse<any, any>>({
 			queryKey: getRouteStopQueryKey({
-				companyId,
+				companyId: 'CTB',
 				route,
 				direction
 			}),
 			queryFn: async () => {
 				if (companyId === 'CTB') {
 					return getRouteStop({
-						companyId,
+						companyId: 'CTB',
 						route,
 						direction
 					});
@@ -80,17 +86,11 @@
 			}
 		})
 	);
-
-	$inspect(
-		companyId === 'CTB'
-			? $routeQuery.data?.data.orig_tc
-			: $routeQuery.data?.data.dest_tc
-	);
 </script>
 
 <svelte:head>
 	<title>
-		{companyId === 'CTB' ? '城巴' : companyId === 'NWFB' ? '新巴' : ''}
+		{companyId === 'KMB' ? '九巴' : '城巴'}
 		{$routeQuery?.data?.data.route} | Bus ETA
 	</title>
 </svelte:head>
@@ -104,16 +104,18 @@
 		<p>錯誤發生</p>
 	{:else if $routeQuery.isSuccess}
 		<div class="w-full">
-			<RouteHeader {companyId} route={$routeQuery.data.data.route} />
+			<RouteHeader
+				{companyId}
+				route={$routeQuery.data.data.route}
+				{direction}
+			/>
 
 			<div class="grid w-full auto-cols-fr grid-flow-col gap-2">
 				<Button
 					type="button"
 					class="px-6 py-4"
 					variant={direction === 'inbound' ? 'primary' : 'secondary'}
-					onclick={() => {
-						direction = 'inbound';
-					}}
+					onclick={() => setDirection('inbound')}
 					>往{companyId === 'CTB'
 						? $routeQuery.data.data.orig_tc
 						: $routeQuery.data.data.dest_tc}</Button
@@ -122,9 +124,7 @@
 					type="button"
 					class="px-6 py-4"
 					variant={direction === 'outbound' ? 'primary' : 'secondary'}
-					onclick={() => {
-						direction = 'outbound';
-					}}
+					onclick={() => setDirection('outbound')}
 					>往{companyId === 'CTB'
 						? $routeQuery.data.data.dest_tc
 						: $routeQuery.data.data.orig_tc}</Button
