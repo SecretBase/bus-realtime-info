@@ -3,11 +3,14 @@
 	import type { ETA } from '$lib/api/ctb/types';
 	import CompanyBadge from '$lib/components/CompanyBadge.svelte';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale, localizeHref } from '$lib/paraglide/runtime';
 	import {
-		getDifferentInMinutesByTimeStamp,
+		formatEtaMinutes,
 		isArrivalMoreThanOneMinuteAway,
 		sortEta
 	} from '$lib/utils/eta';
+	import { getDestination, getStopName } from '$lib/utils/localized';
 	import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { page } from '$app/stores';
@@ -44,15 +47,23 @@
 			.map((etas) => ({
 				route: etas[0].route,
 				direction: etas[0].dir as 'I' | 'O',
-				dest_tc: etas[0].dest_tc,
+				destination: getDestination(etas[0]),
 				etas
 			}))
-			.sort((a, b) => a.route.localeCompare(b.route, 'zh-HK'));
+			.sort((a, b) =>
+				a.route.localeCompare(b.route, getLocale() === 'en' ? 'en' : 'zh-HK')
+			);
 	});
 </script>
 
 <svelte:head>
-	<title>{$stopQuery.data?.data?.name_tc ?? '站點'} | 站點路線</title>
+	<title>
+		{m.page_title_stop_routes({
+			stop: $stopQuery.data?.data
+				? getStopName($stopQuery.data.data)
+				: m.default_stop_name()
+		})}
+	</title>
 </svelte:head>
 
 <div
@@ -60,20 +71,20 @@
 >
 	<div class="w-full">
 		<a
-			href="/stops"
+			href={localizeHref('/stops')}
 			class="text-vesuvius-700 mb-4 inline-block text-sm underline"
-			>← 返回搜尋</a
+			>{m.back_to_search()}</a
 		>
 
 		{#if $stopQuery.isLoading}
 			<LoadingSkeleton skeletonHeightClass="h-14" />
 		{:else if $stopQuery.isError}
-			<p class="rounded-xl bg-white p-4 text-center shadow-md">無法載入站點</p>
+			<p class="rounded-xl bg-white p-4 text-center shadow-md">
+				{m.stop_load_error()}
+			</p>
 		{:else if $stopQuery.isSuccess}
-			<h1
-				class="rounded-xl bg-white px-6 py-4 text-xl font-bold shadow-md"
-			>
-				{$stopQuery.data.data.name_tc}
+			<h1 class="rounded-xl bg-white px-6 py-4 text-xl font-bold shadow-md">
+				{getStopName($stopQuery.data.data)}
 			</h1>
 		{/if}
 	</div>
@@ -83,39 +94,45 @@
 			<LoadingSkeleton />
 		{:else if $etaQuery.isError}
 			<p class="rounded-xl bg-white p-4 text-center shadow-md">
-				無法載入到站時間
+				{m.eta_load_error()}
 			</p>
 		{:else if routeGroups.length === 0}
 			<div class="rounded-xl bg-white p-6 text-center shadow-md">
-				<p class="text-vesuvius-900">此站暫無班次</p>
+				<p class="text-vesuvius-900">{m.no_routes_at_stop()}</p>
 			</div>
 		{:else}
-			<ul class="no-scroll-bar grid h-full items-start gap-3 overflow-auto auto-rows-min">
+			<ul
+				class="no-scroll-bar grid h-full auto-rows-min items-start gap-3 overflow-auto"
+			>
 				{#each routeGroups as group}
 					{@const nextEta = group.etas[0]}
 					<li>
 						<a
-							href="/KMB/route/{group.route}/stop/{stopId}?direction={group.direction ===
-							'I'
-								? 'inbound'
-								: 'outbound'}"
+							href={localizeHref(
+								`/KMB/route/${group.route}/stop/${stopId}?direction=${
+									group.direction === 'I' ? 'inbound' : 'outbound'
+								}`
+							)}
 							class="flex items-start gap-3 rounded-xl bg-white p-4 shadow-md hover:shadow-lg"
 						>
 							<CompanyBadge companyId="KMB" />
 							<div class="min-w-0 flex-1">
 								<div class="text-vesuvius-900 font-medium">
-									{group.route} 往 {group.dest_tc}
+									{m.route_to_dest({
+										route: group.route,
+										destination: group.destination
+									})}
 								</div>
 								{#if nextEta}
 									<div class="mt-1 text-sm text-gray-600">
 										{#if nextEta.eta === null}
-											沒有班次
+											{m.no_service()}
 										{:else if isArrivalMoreThanOneMinuteAway(nextEta.etaDate)}
-											{getDifferentInMinutesByTimeStamp(
-												new Date(nextEta.eta).getTime()
-											)} 分鐘
+											{formatEtaMinutes(new Date(nextEta.eta).getTime())}
 										{:else}
-											<span class="font-medium text-red-600">即將到達</span>
+											<span class="font-medium text-red-600"
+												>{m.arriving_soon()}</span
+											>
 										{/if}
 									</div>
 								{/if}

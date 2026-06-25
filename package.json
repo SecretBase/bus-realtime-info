@@ -13,6 +13,7 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
+		"@inlang/paraglide-js": "^2.18.2",
 		"@sveltejs/adapter-netlify": "^4.4.2",
 		"@sveltejs/kit": "^2.49.3",
 		"@tailwindcss/postcss": "^4.1.18",

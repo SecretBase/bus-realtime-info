@@ -1,25 +1,38 @@
 <script lang="ts">
+	import type { Pathname } from '$app/types';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import { locales, localizeHref } from '$lib/paraglide/runtime';
 	import './app.css';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
-
 	import type { PageData } from './$types';
-  import Footer from '$lib/components/Footer.svelte';
-  import ViewTransition from './ViewTransition.svelte';
+	import Footer from '$lib/components/Footer.svelte';
+	import ViewTransition from './ViewTransition.svelte';
 
 	const { data, children } = $props<{ data: PageData }>();
 </script>
 
 <QueryClientProvider client={data.queryClient}>
 	<ViewTransition />
+
 	<div class="page grid">
 		<main
 			class="container mx-auto flex h-full flex-col items-center justify-center"
 		>
 			{@render children()}
 		</main>
+
 		<Footer />
 	</div>
 </QueryClientProvider>
+
+<div style="display:none">
+	{#each locales as locale (locale)}
+		<a href={resolve(localizeHref(page.url.pathname, { locale }) as Pathname)}
+			>{locale}</a
+		>
+	{/each}
+</div>
 
 <style>
 	.page {

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Map, Marker } from 'leaflet';
 	import Button from '$lib/components/Button.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	const {
 		lat,
@@ -32,17 +33,17 @@
 
 	const mapAriaLabel = $derived(
 		locationState === 'tracking'
-			? '巴士站與你的位置地圖'
+			? m.map_stop_with_user()
 			: label
-				? `${label} 地圖`
-				: '巴士站地圖'
+				? m.map_stop_label({ label })
+				: m.map_stop()
 	);
 
 	const locationErrorMessage = $derived(
 		locationState === 'denied'
-			? '無法取得位置，請檢查瀏覽器權限'
+			? m.location_denied()
 			: locationState === 'unavailable'
-				? '無法取得位置，請稍後再試'
+				? m.location_unavailable()
 				: ''
 	);
 
@@ -283,10 +284,10 @@
 				<Button
 					variant="secondary"
 					class="w-full text-sm"
-					aria-label="停止定位"
+					aria-label={m.stop_tracking()}
 					onclick={stopTracking}
 				>
-					停止定位
+					{m.stop_tracking()}
 				</Button>
 			{:else if locationState === 'denied' || locationState === 'unavailable'}
 				<p class="text-center text-xs text-red-600" role="alert">
@@ -295,31 +296,31 @@
 				<Button
 					variant="secondary"
 					class="w-full text-sm"
-					aria-label="重試定位"
+					aria-label={m.retry_location()}
 					onclick={startTracking}
 				>
-					重試定位
+					{m.retry_location()}
 				</Button>
 			{:else}
 				<Button
 					variant="secondary"
 					class="w-full text-sm"
-					aria-label="顯示目前位置於地圖上"
+					aria-label={m.show_my_location_aria()}
 					onclick={startTracking}
 				>
-					顯示我的位置
+					{m.show_my_location()}
 				</Button>
 			{/if}
 		{/if}
 
-		<p class="text-center text-xs text-gray-600">位置僅供參考</p>
+		<p class="text-center text-xs text-gray-600">{m.location_disclaimer()}</p>
 		<a
 			href={osmUrl}
 			target="_blank"
 			rel="noopener noreferrer"
 			class="text-vesuvius-900 text-center text-sm underline"
 		>
-			在 OpenStreetMap 開啟
+			{m.open_in_osm()}
 		</a>
 	</div>
 {/if}

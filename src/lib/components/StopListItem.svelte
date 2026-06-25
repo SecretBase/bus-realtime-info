@@ -11,11 +11,14 @@
 	import type { Direction, OperatorId } from '$lib/api/ctb/types';
 	import { createQuery } from '@tanstack/svelte-query';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { localizeHref } from '$lib/paraglide/runtime';
 	import {
-		getDifferentInMinutesByTimeStamp,
+		formatEtaMinutes,
 		isArrivalMoreThanOneMinuteAway,
 		sortEta
 	} from '$lib/utils/eta';
+	import { getStopName } from '$lib/utils/localized';
 	import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
 
 	const {
@@ -38,9 +41,7 @@
 		createQuery({
 			queryKey: [...getStopQueryKey({ stopId }), companyId],
 			queryFn: () =>
-				companyId === 'CTB'
-					? getStop({ stopId })
-					: getKMBStop({ stop: stopId })
+				companyId === 'CTB' ? getStop({ stopId }) : getKMBStop({ stop: stopId })
 		})
 	);
 
@@ -89,10 +90,12 @@
 {#if $etaQuery.isLoading || $stopQuery.isLoading}
 	<LoadingSkeleton numberOfSkeletonBar={1} />
 {:else if $etaQuery.isError || $stopQuery.isError}
-	<p>錯誤發生</p>
+	<p>{m.error_occurred()}</p>
 {:else if $etaQuery.isSuccess && $stopQuery.isSuccess}
 	<a
-		href={`/${companyId}/route/${route}/stop/${stopId}${direction ? `?direction=${direction}` : ''}`}
+		href={localizeHref(
+			`/${companyId}/route/${route}/stop/${stopId}${direction ? `?direction=${direction}` : ''}`
+		)}
 		style:--tag={`stop-item-${stopId}`}
 		class={`flex rounded-lg bg-white p-2 shadow-md hover:shadow-lg ${
 			showRouteNumber ? 'justify-between' : 'justify-start gap-4'
@@ -106,22 +109,20 @@
 							<span
 								class="bg-vesuvius-300 inline-block min-w-[76px] rounded-full px-3 py-2 text-center"
 							>
-								{getDifferentInMinutesByTimeStamp(
-									new Date(eta.eta).getTime()
-								)}分鐘
+								{formatEtaMinutes(new Date(eta.eta).getTime())}
 							</span>
 						{:else if eta.eta !== null}
 							<span
 								class="bg-vesuvius-300 inline-block min-w-[76px] rounded-full px-3 py-2 text-center"
 							>
 								<span class="animate-pulse font-bold text-red-600"
-									>即將到達</span
+									>{m.arriving_soon()}</span
 								>
 							</span>
 						{:else}
 							<span
 								class="bg-vesuvius-300 inline-block min-w-[76px] rounded-full px-3 py-2 text-center text-gray-600"
-								>沒有班次</span
+								>{m.no_service()}</span
 							>
 						{/if}
 					</li>
@@ -129,7 +130,7 @@
 					<li>
 						<span
 							class="bg-vesuvius-300 rounded-full py-2 px-3 inline-block min-w-[76px] text-center text-gray-600"
-							>沒有班次</span
+							>{m.no_service()}</span
 						>
 					</li>
 				{/each}
@@ -141,7 +142,7 @@
 			} h-min`}
 			style:--tag={`stop-title-${stopId}`}
 		>
-			{$stopQuery.data.data.name_tc}
+			{getStopName($stopQuery.data.data)}
 		</div>
 		{#if showRouteNumber}
 			<div class="col-span-3 text-end">
