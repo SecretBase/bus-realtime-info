@@ -48,6 +48,8 @@ export type Stop = {
 
 export type CompanyId = 'CTB';
 
+export type OperatorId = CompanyId | 'KMB';
+
 export type Company = {
 	co: CompanyId;
 	name_tc: string;
