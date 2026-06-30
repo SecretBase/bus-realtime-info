@@ -134,7 +134,7 @@
 </svelte:head>
 
 <div
-	class="routes-filter-grid grid h-full w-full max-w-md justify-center gap-4 px-4 py-4"
+	class="routes-filter-grid grid h-full min-h-0 w-full max-w-md justify-center gap-4 px-4 py-4"
 >
 	<div class="w-full min-w-xs">
 		<RouteHeader {companyId} {route} />
@@ -217,7 +217,7 @@
 		{:else if $etaQuery.isError}
 			<p>{m.error_occurred()}</p>
 		{:else if $etaQuery.isSuccess}
-			<ul class="grid gap-4">
+			<ul class="no-scroll-bar grid h-full auto-rows-min gap-4 overflow-y-auto">
 				{#each stopEtas ?? [] as eta}
 					<li
 						class="flex items-center justify-between gap-4 rounded-lg bg-white p-2 shadow-md"
