@@ -2,7 +2,7 @@ import { persisted } from 'svelte-local-storage-store';
 import type { OperatorId } from '../api/ctb/types';
 
 export type FavoriteStop = {
-	companyId: OperatorId;
+	companyId: OperatorId | 'MTR';
 	routeId: string;
 	stopId: string;
 	direction?: string;

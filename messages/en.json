@@ -61,5 +61,18 @@
 	"back_to_search": "← Back to search",
 	"no_routes_at_stop": "No services at this stop",
 	"default_stop_name": "Stop",
-	"hello_world": "Hello, {name} from en!"
+	"hello_world": "Hello, {name} from en!",
+	"mode_bus": "Bus",
+	"mode_mtr": "MTR",
+	"mode_switch_label": "Transport mode",
+	"nav_mtr": "MTR",
+	"page_title_mtr": "MTR ETA",
+	"page_title_mtr_line": "{line} | MTR ETA",
+	"page_title_mtr_station": "{station} | {line} | MTR ETA",
+	"mtr_filter_placeholder": "Enter line or station",
+	"no_matching_mtr": "No matching lines or stations",
+	"mtr_platform": "Platform {platform}",
+	"mtr_delayed": "Train service delayed",
+	"reverse_stations": "Reverse",
+	"browse_mtr": "Browse MTR lines"
 }

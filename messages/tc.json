@@ -60,5 +60,18 @@
 	"nearby_distance_meters": "{distance}米",
 	"back_to_search": "← 返回搜尋",
 	"no_routes_at_stop": "此站暫無班次",
-	"default_stop_name": "站點"
+	"default_stop_name": "站點",
+	"mode_bus": "巴士",
+	"mode_mtr": "港鐵",
+	"mode_switch_label": "交通模式",
+	"nav_mtr": "港鐵",
+	"page_title_mtr": "港鐵到站時間",
+	"page_title_mtr_line": "{line} | 港鐵到站時間",
+	"page_title_mtr_station": "{station} | {line} | 港鐵到站時間",
+	"mtr_filter_placeholder": "輸入路線或車站",
+	"no_matching_mtr": "沒有符合的路線或車站",
+	"mtr_platform": "月台{platform}",
+	"mtr_delayed": "列車服務延誤",
+	"reverse_stations": "調轉方向",
+	"browse_mtr": "瀏覽港鐵路線"
 }
