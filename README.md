@@ -6,6 +6,7 @@ A modern Progressive Web App (PWA) for checking real-time bus arrival times (ETA
 
 - 🚌 **Multi-Company Support**: Browse routes from CTB (Citybus), KMB, and NWFB
 - 🚇 **MTR arrivals**: Look up Hong Kong MTR line/station ETAs on the same site
+- 💰 **Fares**: Adult (and concession, where published) fares on bus route/stop pages and MTR station pages
 - 🔍 **Route Search**: Quickly find bus routes with real-time filtering
 - 📍 **Stop Information**: View detailed stop information and real-time ETA
 - ⏱️ **Auto-Refresh**: ETA data automatically refreshes every 10 seconds
@@ -34,6 +35,11 @@ The application fetches real-time data from official Hong Kong government / MTR 
 - **CTB/Citybus**: `https://rt.data.gov.hk/v2/transport/citybus`
 - **KMB**: `https://data.etabus.gov.hk/v1/transport/kmb`
 - **MTR Next Train**: `https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php` (official [DATA.GOV.HK](https://data.gov.hk/en-data/dataset/mtr-data2-nexttrain-data) feed; spec: [Next Train API v1.7](https://opendata.mtr.com.hk/doc/Next_Train_API_Spec_v1.7.pdf)). Query with `line` + `sta` (optional `lang=TC|EN`). Covers heavy-rail lines including Disneyland Resort Line. Light Rail is not included.
+- **Bus fares**: Transport Department [Routes and fares of public transport (XML)](https://data.gov.hk/en-data/dataset/hk-td-tis_14-routes-fares-xml) — `https://static.data.gov.hk/td/routes-fares-xml/ROUTE_BUS.xml` (`FULL_FARE` adult full-journey fare for KMB / Citybus / joint-operated routes). No env vars. Section fares are not shown.
+- **MTR fares**: Official MTR open data ([DATA.GOV.HK — MTR routes, fares and barrier-free facilities](https://data.gov.hk/en-data/dataset/mtr-data-routes-fares-barrier-free-facilities)):
+  - Heavy rail: `https://opendata.mtr.com.hk/data/mtr_lines_fares.csv` (adult / student / child / elderly / PWD / JoyYou Octopus)
+  - Airport Express: `https://opendata.mtr.com.hk/data/airport_express_fares.csv` (adult / child Octopus; airport & AsiaWorld-Expo pairs only)
+  - These CSVs have no CORS headers, so the app loads them through `/api/fare/mtr?file=…` (allowlisted proxy, no API key). Light Rail is not included.
 
 ## Getting Started
 

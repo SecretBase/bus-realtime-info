@@ -50,3 +50,14 @@ registerRoute(
 		plugins: [new CacheableResponsePlugin({ statuses: [200] })]
 	})
 );
+
+registerRoute(
+	({ url }) =>
+		url.pathname.startsWith('/api/fare') ||
+		(url.origin === 'https://static.data.gov.hk' &&
+			url.pathname.includes('routes-fares-xml')),
+	new StaleWhileRevalidate({
+		cacheName: 'fare-cache',
+		plugins: [new CacheableResponsePlugin({ statuses: [200] })]
+	})
+);
