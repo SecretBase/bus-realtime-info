@@ -6,6 +6,7 @@
 	import CompanyBadge from '$lib/components/CompanyBadge.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
+	import TransportModeSwitch from '$lib/components/TransportModeSwitch.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { localizeHref } from '$lib/paraglide/runtime';
 	import { getDestination, getOrigin } from '$lib/utils/localized';
@@ -106,12 +107,15 @@
 <div
 	class="grid-flow-cols routes-filter-grid grid h-full w-full max-w-md gap-4 px-4 py-4"
 >
-	<input
-		type="text"
-		placeholder={m.route_filter_placeholder_home()}
-		bind:value={routeFilter}
-		class="bg-vesuvius-700 min-w-[200px] rounded-xl border-b p-4 text-center text-white placeholder:text-white"
-	/>
+	<div class="grid w-full gap-2">
+		<TransportModeSwitch />
+		<input
+			type="text"
+			placeholder={m.route_filter_placeholder_home()}
+			bind:value={routeFilter}
+			class="bg-vesuvius-700 min-w-[200px] rounded-xl border-b p-4 text-center text-white placeholder:text-white"
+		/>
+	</div>
 	<div
 		class="no-scroll-bar h-full min-h-0 overflow-y-auto"
 		bind:this={scrollElement}

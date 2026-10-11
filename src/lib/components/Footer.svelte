@@ -32,6 +32,29 @@
 
 				<li class="flex items-center">
 					<a
+						href={localizeHref('/mtr')}
+						class={`hover:[&_svg]:fill-vesuvius-300 flex flex-col items-center justify-center ${
+							$page.url.pathname.startsWith('/mtr')
+								? '[&_svg]:fill-vesuvius-400'
+								: ''
+						}`}
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							height="1em"
+							viewBox="0 0 448 512"
+							class="mx-auto h-6 w-6 fill-white"
+						>
+							<path
+								d="M96 0C43 0 0 43 0 96V352c0 48 35.2 87.7 81.1 94.9l-46 46C28.1 499.9 31.1 512 43 512H82.7c8.5 0 16.6-3.4 22.6-9.4L160 448H288l54.6 54.6c6 6 14.1 9.4 22.6 9.4H405c11.8 0 14.9-12.1 7.9-19.1l-46-46c46-7.2 81.1-46.9 81.1-94.9V96c0-53-43-96-96-96H96zM64 224H384V352c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V224zM64 96c0-17.7 14.3-32 32-32H352c17.7 0 32 14.3 32 32v64H64V96z"
+							/>
+						</svg>
+						<span class="sr-only">{m.nav_mtr()}</span>
+					</a>
+				</li>
+
+				<li class="flex items-center">
+					<a
 						href={localizeHref('/stops')}
 						class={`hover:[&_svg]:fill-vesuvius-300 flex flex-col items-center justify-center ${
 							$page.url.pathname.startsWith('/stops')

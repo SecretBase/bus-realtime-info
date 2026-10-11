@@ -5,6 +5,7 @@ A modern Progressive Web App (PWA) for checking real-time bus arrival times (ETA
 ## Features
 
 - 🚌 **Multi-Company Support**: Browse routes from CTB (Citybus), KMB, and NWFB
+- 🚇 **MTR arrivals**: Look up Hong Kong MTR line/station ETAs on the same site
 - 🔍 **Route Search**: Quickly find bus routes with real-time filtering
 - 📍 **Stop Information**: View detailed stop information and real-time ETA
 - ⏱️ **Auto-Refresh**: ETA data automatically refreshes every 10 seconds
@@ -28,10 +29,11 @@ A modern Progressive Web App (PWA) for checking real-time bus arrival times (ETA
 
 ## Data Sources
 
-The application fetches real-time bus data from official Hong Kong government APIs:
+The application fetches real-time data from official Hong Kong government / MTR APIs. No API keys or environment variables are required.
 
 - **CTB/Citybus**: `https://rt.data.gov.hk/v2/transport/citybus`
 - **KMB**: `https://data.etabus.gov.hk/v1/transport/kmb`
+- **MTR Next Train**: `https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php` (official [DATA.GOV.HK](https://data.gov.hk/en-data/dataset/mtr-data2-nexttrain-data) feed; spec: [Next Train API v1.7](https://opendata.mtr.com.hk/doc/Next_Train_API_Spec_v1.7.pdf)). Query with `line` + `sta` (optional `lang=TC|EN`). Covers heavy-rail lines including Disneyland Resort Line. Light Rail is not included.
 
 ## Getting Started
 
@@ -42,12 +44,14 @@ The application fetches real-time bus data from official Hong Kong government AP
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd bus-realtime-info
 ```
 
 2. Install dependencies:
+
 ```bash
 bun install
 ```
@@ -104,6 +108,7 @@ src/
 ├── routes/               # SvelteKit routes
 │   ├── +page.svelte      # Home page (route list)
 │   ├── favorites/        # Favorites page
+│   ├── mtr/              # MTR lines, stations, and live ETA
 │   └── [companyId]/      # Dynamic routes
 │       └── route/
 │           └── [route]/
@@ -125,22 +130,27 @@ src/
 ## Key Features Explained
 
 ### Route Browsing
+
 - Browse all available routes from supported bus companies
 - Search/filter routes by route number
 - Virtual scrolling for optimal performance with large lists
+- Switch to **港鐵 / MTR** on the home page or footer to browse lines, search stations, and view live train arrivals (refreshes every 10 seconds)
 
 ### Stop Details
+
 - View all stops along a route
 - See real-time ETA for each stop
 - Switch between inbound and outbound directions
 
 ### ETA Display
+
 - Shows arrival time in minutes for buses arriving in more than 1 minute
 - Displays "即將到達" (Arriving Soon) for buses arriving within 1 minute
 - Automatically refreshes every 10 seconds
 - Sorted by arrival time
 
 ### Favorites
+
 - Save frequently used stops
 - Access favorites from the dedicated favorites page
 - Favorites are stored in browser local storage
