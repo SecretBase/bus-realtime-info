@@ -73,5 +73,16 @@
 	"mtr_platform": "月台{platform}",
 	"mtr_delayed": "列車服務延誤",
 	"reverse_stations": "調轉方向",
-	"browse_mtr": "瀏覽港鐵路線"
+	"browse_mtr": "瀏覽港鐵路線",
+	"fare": "車資",
+	"fare_adult": "成人八達通",
+	"fare_student": "學生",
+	"fare_child": "小童",
+	"fare_elderly": "長者",
+	"fare_pwd": "殘疾人士",
+	"fare_joyyou": "樂悠卡",
+	"fare_full": "全程",
+	"fare_select_dest": "選擇目的地",
+	"fare_unavailable": "暫無車資資料",
+	"fare_load_error": "無法載入車資"
 }

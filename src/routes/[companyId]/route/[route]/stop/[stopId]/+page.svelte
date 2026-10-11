@@ -12,6 +12,14 @@
 	import type { APIResponse } from '$lib/api/common/types';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import BusStopMap from '$lib/components/BusStopMap.svelte';
+	import FareCard from '$lib/components/FareCard.svelte';
+	import {
+		FARE_STALE_MS,
+		fareDirectionEnds,
+		getBusFareTable,
+		getBusFareTableQueryKey,
+		lookupBusFare
+	} from '$lib/fare';
 	import {
 		getRoute as getKMBRoute,
 		getRouteStop as getKMBRouteStop
@@ -26,7 +34,8 @@
 		getDateFnsLocale,
 		getDestination,
 		getRemark,
-		getStopName
+		getStopName,
+		pickLocalizedText
 	} from '$lib/utils/localized';
 	import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
 	import * as m from '$lib/paraglide/messages.js';
@@ -119,14 +128,32 @@
 		stop.routeId === route;
 
 	const hasFavorites = $derived($favorites.stops.some(matchFavoritesStop));
+
+	const fareTableQuery = createQuery({
+		queryKey: getBusFareTableQueryKey(),
+		staleTime: FARE_STALE_MS,
+		queryFn: getBusFareTable
+	});
+	const fareEnds = $derived(
+		$routeQuery.data?.data
+			? fareDirectionEnds(companyId, direction, $routeQuery.data.data)
+			: null
+	);
+	const busFare = $derived(
+		lookupBusFare(
+			$fareTableQuery.data,
+			companyId,
+			route,
+			fareEnds?.destTc,
+			fareEnds?.destEn
+		)
+	);
 </script>
 
 <svelte:head>
 	<title>
 		{m.page_title_stop({
-			stop: $stopQuery?.data?.data
-				? getStopName($stopQuery.data.data)
-				: '',
+			stop: $stopQuery?.data?.data ? getStopName($stopQuery.data.data) : '',
 			company: getCompanyName(companyId),
 			route: $routeQuery?.data?.data.route ?? ''
 		})}
@@ -211,6 +238,20 @@
 					label={getStopName($stopQuery.data.data)}
 				/>
 			{/if}
+
+			<div class="mt-4">
+				<FareCard
+					loading={$fareTableQuery.isLoading}
+					error={$fareTableQuery.isError}
+					onretry={() => $fareTableQuery.refetch()}
+					adult={busFare?.adult}
+					subtitle={busFare
+						? `${m.fare_full()} · ${m.direction_to({
+								destination: pickLocalizedText(busFare.toTc, busFare.toEn)
+							})}`
+						: undefined}
+				/>
+			</div>
 		{/if}
 
 		{#if $etaQuery.isLoading}

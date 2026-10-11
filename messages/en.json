@@ -74,5 +74,16 @@
 	"mtr_platform": "Platform {platform}",
 	"mtr_delayed": "Train service delayed",
 	"reverse_stations": "Reverse",
-	"browse_mtr": "Browse MTR lines"
+	"browse_mtr": "Browse MTR lines",
+	"fare": "Fare",
+	"fare_adult": "Adult Octopus",
+	"fare_student": "Student",
+	"fare_child": "Child",
+	"fare_elderly": "Elderly",
+	"fare_pwd": "PWD",
+	"fare_joyyou": "JoyYou",
+	"fare_full": "Full journey",
+	"fare_select_dest": "Choose destination",
+	"fare_unavailable": "Fare unavailable",
+	"fare_load_error": "Unable to load fare"
 }

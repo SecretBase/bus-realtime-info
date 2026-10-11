@@ -69,6 +69,8 @@ src/
 |----------|----------|---------------|
 | CTB / NWFB | `https://rt.data.gov.hk/v2/transport/citybus` | `src/lib/api/ctb/` |
 | KMB | `https://data.etabus.gov.hk` | `src/lib/api/kmb/` |
+| Bus fares | `https://static.data.gov.hk/td/routes-fares-xml/ROUTE_BUS.xml` | `src/lib/fare.ts` |
+| MTR fares | `https://opendata.mtr.com.hk/data/mtr_lines_fares.csv` (via `/api/fare/mtr`) | `src/lib/fare.ts` |
 
 All responses use the shared `APIResponse<Data, ApiType>` shape:
 

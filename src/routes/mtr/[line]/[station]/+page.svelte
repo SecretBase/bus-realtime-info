@@ -17,9 +17,20 @@
 		type MtrStationId
 	} from '$lib/api/mtr/data';
 	import Button from '$lib/components/Button.svelte';
+	import FareCard from '$lib/components/FareCard.svelte';
 	import LineBadge from '$lib/components/LineBadge.svelte';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import { REFETCH_EVERY_TEN_SECONDS } from '$lib/constants';
+	import {
+		FARE_STALE_MS,
+		getMtrFareTable,
+		getMtrFareTableQueryKey,
+		lookupMtrFare,
+		mtrFareConcessions,
+		mtrFareDestinations,
+		mtrFareKind,
+		mtrFareName
+	} from '$lib/fare';
 	import * as m from '$lib/paraglide/messages.js';
 	import { getLocale, localizeHref } from '$lib/paraglide/runtime';
 	import { favorites } from '$lib/stores/favorites';
@@ -74,6 +85,57 @@
 		stop.stopId === stationId;
 
 	const hasFavorite = $derived($favorites.stops.some(matchFavorite));
+
+	let destId = $state('');
+	const fareKind = $derived(validLine ? mtrFareKind(validLine) : 'mtr');
+	const fareTableQuery = $derived(
+		createQuery({
+			queryKey: getMtrFareTableQueryKey(fareKind),
+			enabled: Boolean(validLine && validStation),
+			staleTime: FARE_STALE_MS,
+			queryFn: () => getMtrFareTable(fareKind)
+		})
+	);
+	const destChoices = $derived.by(() => {
+		if (!validLine || !validStation) return [];
+		const ids = mtrFareDestinations(validLine, validStation);
+		const table = $fareTableQuery.data;
+		const fromName = mtrFareName(validStation, validLine);
+		const available = table
+			? ids.filter((id) =>
+					lookupMtrFare(table, fromName, mtrFareName(id, validLine))
+				)
+			: ids;
+		return available
+			.map((id) => ({ id, name: getMtrStationName(id) }))
+			.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+	});
+	const suggestedDest = $derived.by(() => {
+		const arriving = [...trains.up, ...trains.down].map((train) => train.dest);
+		const match = destChoices.find((choice) => arriving.includes(choice.id));
+		return match?.id ?? destChoices[0]?.id ?? '';
+	});
+	const selectedDest = $derived(
+		destChoices.some((choice) => choice.id === destId) ? destId : suggestedDest
+	);
+	const mtrFare = $derived(
+		validStation && selectedDest
+			? lookupMtrFare(
+					$fareTableQuery.data,
+					mtrFareName(validStation, validLine ?? undefined),
+					mtrFareName(selectedDest as MtrStationId, validLine ?? undefined)
+				)
+			: undefined
+	);
+	const fareConcessions = $derived(
+		mtrFareConcessions(mtrFare, {
+			student: String(m.fare_student()),
+			child: String(m.fare_child()),
+			elderly: String(m.fare_elderly()),
+			pwd: String(m.fare_pwd()),
+			joyyou: String(m.fare_joyyou())
+		})
+	);
 
 	function directionLabel(directionTrains: MtrTrain[]) {
 		const dests = [
@@ -169,6 +231,40 @@
 							: m.add_to_favorites()}</span
 					>
 				</button>
+			</div>
+
+			<div class="mt-4">
+				<FareCard
+					loading={$fareTableQuery.isLoading}
+					error={$fareTableQuery.isError}
+					onretry={() => $fareTableQuery.refetch()}
+					adult={mtrFare?.adult}
+					subtitle={selectedDest
+						? m.direction_to({
+								destination: getMtrStationName(selectedDest)
+							})
+						: undefined}
+					concessions={fareConcessions}
+					empty={m.fare_select_dest()}
+				>
+					<label class="mb-3 block">
+						<span class="sr-only">{m.fare_select_dest()}</span>
+						<select
+							class="bg-vesuvius-100 text-vesuvius-900 focus-visible:outline-vesuvius-700 w-full rounded-sm px-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2"
+							value={selectedDest}
+							onchange={(event) => {
+								destId = event.currentTarget.value;
+							}}
+						>
+							{#if !selectedDest}
+								<option value="">{m.fare_select_dest()}</option>
+							{/if}
+							{#each destChoices as choice (choice.id)}
+								<option value={choice.id}>{choice.name}</option>
+							{/each}
+						</select>
+					</label>
+				</FareCard>
 			</div>
 
 			{#if $etaQuery.isLoading}

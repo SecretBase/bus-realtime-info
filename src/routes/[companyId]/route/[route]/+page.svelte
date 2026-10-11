@@ -15,13 +15,25 @@
 		getRouteStop as getKMBRouteStop
 	} from '$lib/api/kmb';
 	import Button from '$lib/components/Button.svelte';
+	import FareCard from '$lib/components/FareCard.svelte';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import RouteHeader from '$lib/components/RouteHeader.svelte';
 	import Stop from '$lib/components/StopListItem.svelte';
+	import {
+		FARE_STALE_MS,
+		fareDirectionEnds,
+		getBusFareTable,
+		getBusFareTableQueryKey,
+		lookupBusFare
+	} from '$lib/fare';
 	import * as m from '$lib/paraglide/messages.js';
 	import { getCompanyName } from '$lib/utils/company';
-	import { getDestination, getOrigin } from '$lib/utils/localized';
+	import {
+		getDestination,
+		getOrigin,
+		pickLocalizedText
+	} from '$lib/utils/localized';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const direction = $derived(
@@ -87,6 +99,27 @@
 			}
 		})
 	);
+
+	const fareTableQuery = createQuery({
+		queryKey: getBusFareTableQueryKey(),
+		staleTime: FARE_STALE_MS,
+		queryFn: getBusFareTable
+	});
+
+	const fareEnds = $derived(
+		$routeQuery.data?.data
+			? fareDirectionEnds(companyId, direction, $routeQuery.data.data)
+			: null
+	);
+	const busFare = $derived(
+		lookupBusFare(
+			$fareTableQuery.data,
+			companyId,
+			route,
+			fareEnds?.destTc,
+			fareEnds?.destEn
+		)
+	);
 </script>
 
 <svelte:head>
@@ -138,6 +171,19 @@
 								: getOrigin($routeQuery.data.data)
 					})}</Button
 				>
+			</div>
+			<div class="mt-4">
+				<FareCard
+					loading={$fareTableQuery.isLoading}
+					error={$fareTableQuery.isError}
+					onretry={() => $fareTableQuery.refetch()}
+					adult={busFare?.adult}
+					subtitle={busFare
+						? `${m.fare_full()} · ${m.direction_to({
+								destination: pickLocalizedText(busFare.toTc, busFare.toEn)
+							})}`
+						: undefined}
+				/>
 			</div>
 		</div>
 	{/if}
