@@ -38,7 +38,7 @@
 >
 	<div class="w-full">
 		{#if validLine}
-			<a href={localizeHref(`/mtr/${validLine}`)}>
+			<a href={localizeHref('/mtr')}>
 				<h1
 					class="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-4 text-2xl shadow-md"
 				>

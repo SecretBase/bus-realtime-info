@@ -12,7 +12,9 @@
 		getMtrLineName,
 		getMtrStationName,
 		isMtrLine,
-		isMtrStationOnLine
+		isMtrStationOnLine,
+		type MtrLineId,
+		type MtrStationId
 	} from '$lib/api/mtr/data';
 	import Button from '$lib/components/Button.svelte';
 	import LineBadge from '$lib/components/LineBadge.svelte';
@@ -41,18 +43,22 @@
 	const etaQuery = $derived(
 		createQuery({
 			queryKey: getMtrScheduleQueryKey({
-				line: validLine ?? 'TKL',
-				station: validStation ?? 'TKO',
+				line: lineId as MtrLineId,
+				station: stationId as MtrStationId,
 				lang
 			}),
 			enabled: Boolean(validLine && validStation),
 			refetchInterval: REFETCH_EVERY_TEN_SECONDS,
-			queryFn: () =>
-				getMtrSchedule({
-					line: validLine!,
-					station: validStation!,
+			queryFn: () => {
+				if (!validLine || !validStation) {
+					throw new Error('Invalid MTR stop');
+				}
+				return getMtrSchedule({
+					line: validLine,
+					station: validStation,
 					lang
-				})
+				});
+			}
 		})
 	);
 

@@ -43,18 +43,22 @@
 	const etaQuery = $derived(
 		createQuery({
 			queryKey: getMtrScheduleQueryKey({
-				line: (validLine ?? 'TKL') as MtrLineId,
-				station: (validStation ?? 'TKO') as MtrStationId,
+				line: line as MtrLineId,
+				station: station as MtrStationId,
 				lang
 			}),
 			enabled: Boolean(validLine && validStation),
 			refetchInterval: REFETCH_EVERY_TEN_SECONDS,
-			queryFn: () =>
-				getMtrSchedule({
-					line: validLine as MtrLineId,
-					station: validStation as MtrStationId,
+			queryFn: () => {
+				if (!validLine || !validStation) {
+					throw new Error('Invalid MTR stop');
+				}
+				return getMtrSchedule({
+					line: validLine,
+					station: validStation,
 					lang
-				})
+				});
+			}
 		})
 	);
 
