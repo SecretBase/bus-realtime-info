@@ -71,20 +71,6 @@ export function getMtrStopTrains(
 	};
 }
 
-export function flattenMtrTrains(
-	schedule: MtrSchedule | undefined,
-	line: string,
-	station: string
-) {
-	const { up, down } = getMtrStopTrains(schedule, line, station);
-	return [...up, ...down]
-		.map((train) => ({
-			...train,
-			etaDate: parseMtrTime(train.time)
-		}))
-		.sort((a, b) => a.etaDate.getTime() - b.etaDate.getTime());
-}
-
 export function isMtrScheduleOk(schedule: MtrSchedule | undefined) {
 	return schedule != null && String(schedule.status) === '1';
 }
