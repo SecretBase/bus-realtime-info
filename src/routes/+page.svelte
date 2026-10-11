@@ -7,6 +7,13 @@
 	import Button from '$lib/components/Button.svelte';
 	import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 	import TransportModeSwitch from '$lib/components/TransportModeSwitch.svelte';
+	import {
+		FARE_STALE_MS,
+		formatHkd,
+		getBusFareTable,
+		getBusFareTableQueryKey,
+		lookupBusFare
+	} from '$lib/fare';
 	import * as m from '$lib/paraglide/messages.js';
 	import { localizeHref } from '$lib/paraglide/runtime';
 	import { getDestination, getOrigin } from '$lib/utils/localized';
@@ -53,6 +60,12 @@
 		staleTime: Infinity,
 		queryKey: ['kmb-routes'],
 		queryFn: () => getKMBRoutes()
+	});
+
+	const fareTableQuery = createQuery({
+		staleTime: FARE_STALE_MS,
+		queryKey: getBusFareTableQueryKey(),
+		queryFn: getBusFareTable
 	});
 
 	let routeFilter = $state('');
@@ -142,6 +155,11 @@
 			>
 				{#each $virtualizer.getVirtualItems() as virtualItem (virtualItem.key)}
 					{@const item = routes[virtualItem.index]}
+					{@const fare = lookupBusFare(
+						$fareTableQuery.data,
+						item.co,
+						item.route
+					)}
 					<div
 						style="position: absolute; top: {virtualItem.start}px; left: 0; width: 100%; height: {virtualItem.size}px;"
 					>
@@ -169,6 +187,14 @@
 										})}
 									</div>
 								</div>
+								{#if fare}
+									<span
+										class="bg-vesuvius-100 text-vesuvius-900 shrink-0 rounded-full px-2 py-1 text-xs font-semibold tabular-nums"
+										aria-label={`${m.fare()} ${formatHkd(fare.adult)}`}
+									>
+										{formatHkd(fare.adult)}
+									</span>
+								{/if}
 							</a>
 						</div>
 					</div>
