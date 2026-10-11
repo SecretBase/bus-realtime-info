@@ -203,6 +203,14 @@ When onboarding to a task, start with:
 4. `src/routes/+layout.ts` — QueryClient defaults
 5. `src/routes/app.css` — design tokens
 
+## Cursor Cloud specific instructions
+
+- Bun is pinned to `1.3.14` (`packageManager` in `package.json`). Login shells skip `~/.bashrc`, so `bun` has to be on the default `PATH` via `/usr/local/bin/bun`.
+- `bun run dev` passes Vite `--open`. In this environment start the app with `bun x vite dev --host 0.0.0.0 --port 5173` (port 5173).
+- `src/lib/paraglide` is gitignored. Before `bun run check`, compile it with `bun x paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide --strategy url cookie baseLocale`. That step downloads Inlang plugins from `cdn.jsdelivr.net`. `bun run dev` and `bun run build` compile Paraglide themselves.
+- No API keys or `.env` secrets. Live data comes from `rt.data.gov.hk` (Citybus, MTR) and `data.etabus.gov.hk` (KMB).
+- `bun run check` reports unused `@ts-expect-error` in `src/routes/ViewTransition.svelte`. `bun run lint` fails Prettier on existing files; ESLint 10 then expects `eslint.config.js`, while the repo has `.eslintrc.cjs`. `bun run build` is the production check that completes successfully.
+
 ## Out of scope unless asked
 
 - Adding authentication or user accounts
