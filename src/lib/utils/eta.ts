@@ -1,6 +1,7 @@
 import { differenceInMinutes } from 'date-fns';
 import * as m from '$lib/paraglide/messages.js';
 import type { ETA } from '../api/ctb/types';
+import { uniqueEtas } from './unique-eta';
 
 export function getDifferentInMinutesByTimeStamp(time: number) {
 	return Math.max(0, differenceInMinutes(time, new Date()));
@@ -16,16 +17,19 @@ export function isArrivalMoreThanOneMinuteAway(etaDate: Date) {
 }
 
 export function sortEta(etas?: ETA[]) {
-	return etas
-		?.map((eta) => {
-			return {
-				...eta,
-				etaDate: new Date(eta.eta)
-			} as ETA & { etaDate: Date };
-		})
-		.sort((etaA, etaB) => {
-			if (etaA.etaDate > etaB.etaDate) return 1;
-			if (etaA.etaDate < etaB.etaDate) return -1;
-			return 0;
-		});
+	if (!etas) return;
+	return uniqueEtas(
+		etas
+			.map((eta) => {
+				return {
+					...eta,
+					etaDate: new Date(eta.eta)
+				} as ETA & { etaDate: Date };
+			})
+			.sort((etaA, etaB) => {
+				if (etaA.etaDate > etaB.etaDate) return 1;
+				if (etaA.etaDate < etaB.etaDate) return -1;
+				return 0;
+			})
+	);
 }
