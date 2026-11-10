@@ -33,7 +33,7 @@
 	} from '$lib/fare';
 	import * as m from '$lib/paraglide/messages.js';
 	import { getLocale, localizeHref } from '$lib/paraglide/runtime';
-	import { favorites } from '$lib/stores/favorites';
+	import { favorites, touchFavorite } from '$lib/stores/favorites';
 	import {
 		formatEtaMinutes,
 		isArrivalMoreThanOneMinuteAway
@@ -85,6 +85,14 @@
 		stop.stopId === stationId;
 
 	const hasFavorite = $derived($favorites.stops.some(matchFavorite));
+
+	$effect(() => {
+		touchFavorite({
+			companyId: 'MTR',
+			routeId: lineId,
+			stopId: stationId
+		});
+	});
 
 	let destId = $state('');
 	const fareKind = $derived(validLine ? mtrFareKind(validLine) : 'mtr');
@@ -160,7 +168,8 @@
 			stops: current.stops.concat({
 				companyId: 'MTR',
 				routeId: lineId,
-				stopId: stationId
+				stopId: stationId,
+				lastViewedAt: Date.now()
 			})
 		}));
 	}
