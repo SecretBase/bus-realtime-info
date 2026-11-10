@@ -41,7 +41,11 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { getCompanyName } from '$lib/utils/company';
 
-	import { favorites, type FavoriteStop as Stop } from '$lib/stores/favorites';
+	import {
+		favorites,
+		touchFavorite,
+		type FavoriteStop as Stop
+	} from '$lib/stores/favorites';
 
 	const companyId = $state(($page.params.companyId ?? '') as OperatorId);
 	const route = $state($page.params.route ?? '');
@@ -129,6 +133,14 @@
 
 	const hasFavorites = $derived($favorites.stops.some(matchFavoritesStop));
 
+	$effect(() => {
+		touchFavorite({
+			companyId: ($page.params.companyId ?? '') as OperatorId,
+			routeId: $page.params.route ?? '',
+			stopId: $page.params.stopId ?? ''
+		});
+	});
+
 	const fareTableQuery = createQuery({
 		queryKey: getBusFareTableQueryKey(),
 		staleTime: FARE_STALE_MS,
@@ -204,7 +216,8 @@
 										stopId,
 										companyId,
 										routeId: route,
-										direction: direction
+										direction: direction,
+										lastViewedAt: Date.now()
 									})
 								};
 							});
